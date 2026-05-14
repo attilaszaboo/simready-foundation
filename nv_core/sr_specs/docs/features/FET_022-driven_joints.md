@@ -3,6 +3,26 @@
 
 Driven joints enable physics-driven joint simulation for articulated bodies and robotic mechanisms, with proper drive/state configuration, PhysX drive or mimic APIs, and robot-schema integration for Isaac Sim.
 
+## Dependency Graph
+
+```{mermaid}
+flowchart LR
+    FET004N["FET004_BASE_NEUTRAL\n0.1.0"]
+    FET004RN["FET004_ROBOT_PHYSX\n0.1.0"]
+    FET022N["FET022_DRIVEN_JOINTS_NEUTRAL\n0.1.0"]
+    FET022P["FET022_DRIVEN_JOINTS_PHYSX\n0.1.0"]
+    FET022I["FET022_DRIVEN_JOINTS_ISAAC\n0.1.0"]
+
+    FET022N --> FET004N
+    FET022P --> FET004RN
+    FET022I --> FET022P
+
+    classDef current fill:#90EE90,stroke:#333
+    classDef other fill:#fff,stroke:#333
+    class FET022N,FET022P,FET022I current
+    class FET004N,FET004RN other
+```
+
 ## Neutral Format
 ### Version 0.1.0
 <details>

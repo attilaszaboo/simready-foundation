@@ -1,16 +1,49 @@
 
 # Feature: `ID:004 - Simulate Multi-Body Physics - Base`
-## Description: 
+
+| **Property**            | **Value**         |
+|-------------------------|-------------------|
+| Internal ID             | `FET004_BASE_NEUTRAL`|
+
+## Description
 Features needed to support Simulate Multi-Body physics. This feature enables simulation of physically accurate motion and collisions for props and dynamic assets that have multibody bodies that need to be joined or simulated together.  The enables real world "joints" to describe how two bodies work together. It is suitable for testing, validation, or reference applications where basic physical interactions are required.
+
+## Dependency Graph
+
+```{mermaid}
+flowchart LR
+    FET003N["FET003_BASE_NEUTRAL\n0.1.0"]
+    FET004N["FET004_BASE_NEUTRAL\n0.1.0"]
+    FET003P["FET003_BASE_PHYSX\n0.1.0"]
+    FET004P["FET004_BASE_PHYSX\n0.1.0"]
+    FET004RN["FET004_ROBOT_PHYSX\n0.1.0"]
+    FET022N["FET022_DRIVEN_JOINTS_NEUTRAL\n0.1.0"]
+    FET022P["FET022_DRIVEN_JOINTS_PHYSX\n0.1.0"]
+
+    FET004N --> FET003N
+    FET004P --> FET003P
+    FET004P --> FET004N
+    FET022N --> FET004N
+    FET022P --> FET004RN
+
+    classDef current fill:#90EE90,stroke:#333
+    classDef other fill:#fff,stroke:#333
+    class FET004N,FET004P,FET004RN current
+    class FET003N,FET003P,FET022N,FET022P other
+```
+
+## Use Cases
+
+Products that consume this feature:
+
+- IsaacSim
+- MEGA
+- Lightwheel SOW1
 
 ## Neutral Format
 ### Version 0.1.0
 <details>
 <summary><strong>Details</strong></summary>
-
-| **Property**            | **Value**         |
-|-------------------------|-------------------|
-| Internal ID             | `FET004_BASE_NEUTRAL`|
 
 #### Used in Profiles
 
@@ -49,7 +82,7 @@ This version is used in the following profiles:
         * [Multibody-Capability](../capabilities/physics_bodies/physics_rigid_bodies/requirements/rigid-body-multibody-capability.md)
             * RB.MB.001 | Version 0.1.0
             * [Rule | Implementation](../capabilities/physics_bodies/physics_rigid_bodies/validation.py)
-            
+
 #### Pipelines Supported for this Feature
 Source file type:
 * .blend
@@ -75,7 +108,7 @@ None.
 </details>
 
 ## NVIDIA Physx Format
-### Version 0.1.0 
+### Version 0.1.0
 <details>
 <summary><strong>Details</strong></summary>
 
@@ -124,14 +157,14 @@ Source file type:
     * In Isaac Sim, open this usd: [test stage](../../../testing_tools/testing_data/runtime_physics_tests.usda)
         * Can be manually located here: ```nv_core/testing_tools/testing_data/runtime_physics_tests.usda```
     * Activate correct prim (right click + activate)
-        * select on of these prims: 
+        * select on of these prims:
             * ```/World/Drop_On_Ground_Plane```
             * ```/World/Drop_On_Tilted_Plane```
 
         * ![image1](./images/testing_stage_deactived_prims.png)
         * Right-click on selected prim for context menu and click "Activate"
         * ![image2](./images/testing_stage_right_click_and_activate.png)
-    
+
     * Drill down into activated hierarchy, there should be a prim called "StartPoint"
         * or the direct prim path is: ```/World/Drop_On_Ground_Plane/StartPoint```
     * Select that prim
@@ -140,7 +173,7 @@ Source file type:
 * Hit play button in UI.
     * Press play to start sim
     * Warnings will occur based on collider schema, this is expected
-* Expected result: 
+* Expected result:
     * item should fall down and stop and settle after 5 seconds.
     * Joints should move as expected
         * Jointed assets should not disconnect

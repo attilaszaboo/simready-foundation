@@ -30,6 +30,7 @@ Profiles are predefined bundles of features designed for common scenarios. Examp
 - **New to SimReady?** Start with the [Getting Started](guides/getting_started) guide for an introduction and decision tree.
 - **Creating Assets?** Refer to the [Guides](guides/guides) to learn how to implement capabilities in your assets.
 - **Looking for specific requirements?** Browse the [Capabilities](capabilities/capabilities) section for detailed technical specifications.
+- **Tracking feature progress?** See the [Features Status Dashboard](features/features) for an at-a-glance view of all features, their readiness, versions, and profile membership.
 - **Implementing specific features?** Check out the [Features](features/features) section for detailed feature implementations and requirements.
 - **Building for a specific use case?** Check out the [Profiles](profiles/profiles) section to find predefined capability sets.
 - **Comparing profiles?** See the {ref}`Profile Comparison <profile-comparison>` table for feature-level differences.
@@ -41,6 +42,7 @@ Profiles are predefined bundles of features designed for common scenarios. Examp
 :hidden:
 
 Guides <guides/guides>
+Development Workflows <guides/development>
 Capabilities <capabilities/capabilities>
 Features <features/features>
 Profiles <profiles/profiles>

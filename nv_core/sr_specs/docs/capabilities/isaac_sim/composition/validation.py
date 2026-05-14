@@ -16,7 +16,7 @@ import os
 from enum import Enum
 from pathlib import Path
 
-import omni.asset_validator.core
+import omni.asset_validator
 from pxr import Kind, Usd, UsdGeom, UsdPhysics, UsdShade
 
 from ... import Requirement
@@ -30,9 +30,9 @@ class IsaacCompositionCapReqs(Requirement, Enum):
     )
 
 
-@omni.asset_validator.core.registerRule("IsaacComposition")
-@omni.asset_validator.core.register_requirements(IsaacCompositionCapReqs.ISA_001, override=True)
-class IsaacCompositionCapabilityChecker(omni.asset_validator.core.BaseRuleChecker):
+@omni.asset_validator.register_rule("IsaacComposition")
+@omni.asset_validator.register_requirements(IsaacCompositionCapReqs.ISA_001, override=True)
+class IsaacCompositionCapabilityChecker(omni.asset_validator.BaseRuleChecker):
     ISAAC_COMPOSITION_REQUIREMENT = IsaacCompositionCapReqs.ISA_001
 
     def CheckStage(self, stage: Usd.Stage) -> None:
@@ -95,11 +95,16 @@ class IsaacCompositionCapabilityChecker(omni.asset_validator.core.BaseRuleChecke
 
     def _check_reference_structure(self, default_prim: Usd.Prim):
         """Check if default prim has proper references and payloads"""
-        references = default_prim.GetReferences()
-        payloads = default_prim.GetPayloads()
+        prim_spec = default_prim.GetStage().GetRootLayer().GetPrimAtPath(default_prim.GetPath())
+        if not prim_spec:
+            self._AddFailedCheck(
+                "Could not resolve prim spec for default prim.",
+                at=default_prim,
+                requirement=self.ISAAC_COMPOSITION_REQUIREMENT,
+            )
+            return
 
-        # Check for base reference
-        ref_list = references.GetAddedOrExplicitItems()
+        ref_list = prim_spec.referenceList.GetAddedOrExplicitItems()
         has_base_ref = any("_base.usd" in str(ref.assetPath) for ref in ref_list)
         if not has_base_ref:
             self._AddFailedCheck(
@@ -108,8 +113,7 @@ class IsaacCompositionCapabilityChecker(omni.asset_validator.core.BaseRuleChecke
                 requirement=self.ISAAC_COMPOSITION_REQUIREMENT,
             )
 
-        # Check for physics payload
-        payload_list = payloads.GetAddedOrExplicitItems()
+        payload_list = prim_spec.payloadList.GetAddedOrExplicitItems()
         has_physics_payload = any("_physics.usd" in str(payload.assetPath) for payload in payload_list)
         if not has_physics_payload:
             self._AddFailedCheck(

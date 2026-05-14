@@ -1,17 +1,21 @@
 # Feature: `ID:000 - Core - Base`
 
+| **Property**            | **Value**         |
+|-------------------------|-------------------|
+|Internal ID              | `FET000_CORE`|
+
 ## Description
 The Core Feature comprises fundamental requirements for USD assets, including naming conventions, path structures, atomic asset properties, and basic units. This feature establishes the foundation for all other features and ensures assets are properly structured and portable across different environments.
+
+## Dependency Graph
+
+This feature has no dependencies and no other features depend on it directly.
 
 ## Neutral Format
 
 ### Version 0.1.0
 <details>
 <summary><strong>Details</strong></summary>
-
-| **Property**            | **Value**         |
-|-------------------------|-------------------|
-|Internal ID              | `FET000_CORE`|
 
 #### Used in Profiles
 
@@ -20,7 +24,7 @@ This version is used in the following profiles:
 - **[Prop Robotics Neutral Profile](../profiles/prop-robotics-neutral.md)** (v0.1.0) - Used as the base core feature
 - **[Prop Robotics Physx Profile](../profiles/prop-robotics-physx.md)** (v0.1.0) - Used as the base core feature with PhysX-aware tools
 
-#### Requirements 
+#### Requirements
 * Capability: [Core/Naming_Paths](../capabilities/core/naming_paths/capability-naming_paths.md)
     * Requirements
         * [Prim-Naming-Convention](../capabilities/core/naming_paths/requirements/prim-naming-convention.md)

@@ -3,8 +3,7 @@
 Edges point from a feature to the feature(s) it **depends on** (e.g. `FET003_BASE_PHYSX` → `FET003_BASE_NEUTRAL`). Data is taken from `docs/features/*.json` `dependencies` arrays.
 
 ## Mermaid diagram (top-down: dependency above → dependant below)
-```{code-block} text
-:class: mermaid
+```{mermaid}
 flowchart TD
     FET003N["FET003_BASE_NEUTRAL 0.1.0"]
     FET004N["FET004_BASE_NEUTRAL 0.1.0"]
@@ -12,6 +11,7 @@ flowchart TD
     FET004P["FET004_BASE_PHYSX 0.1.0"]
     FET004RN["FET004_ROBOT_PHYSX 0.1.0"]
     FET024N["FET024_BASE_ARTICULATION_NEUTRAL 0.1.0"]
+    FET030["FET030_PACKAGING_CORE 0.1.0"]
 
     FET003P --> FET003N
     FET004N --> FET003N
@@ -23,11 +23,13 @@ flowchart TD
     FET022P["FET022_DRIVEN_JOINTS_PHYSX 0.1.0"] --> FET004RN
     FET022I["FET022_DRIVEN_JOINTS_ISAAC 0.1.0"] --> FET022P
     FET024P["FET024_BASE_ARTICULATION_PHYSX 0.1.0"] --> FET024N
+    FET032["FET032_PACKAGING_INTROSPECTION 0.1.0"] --> FET030
+    FET031["FET031_PACKAGE_SELF_CONTAINED 0.1.0"]
+    FET033["FET033_SIMREADY_PACKAGING 0.1.0"] --> FET031
 ```
 
 ## Mermaid diagram (left-right: dependency left → dependant right)
-```{code-block} text
-:class: mermaid
+```{mermaid}
 flowchart LR
     subgraph roots["Roots (no dependencies)"]
         FET000["FET000_CORE\n0.1.0"]
@@ -42,6 +44,8 @@ flowchart LR
         FET021_R["FET021_ROBOT_CORE_RUNNABLE\n0.2.0"]
         FET023["FET023_ROBOT_MATERIALS\n0.1.0"]
         FET024N["FET024_BASE_ARTICULATION_NEUTRAL\n0.1.0"]
+        FET030["FET030_PACKAGING_CORE\n0.1.0"]
+        FET031["FET031_PACKAGE_SELF_CONTAINED\n0.1.0"]
     end
 
     FET003P["FET003_BASE_PHYSX\n0.1.0"] --> FET003N
@@ -54,6 +58,8 @@ flowchart LR
     FET022P["FET022_DRIVEN_JOINTS_PHYSX\n0.1.0"] --> FET004RN
     FET022I["FET022_DRIVEN_JOINTS_ISAAC\n0.1.0"] --> FET022P
     FET024P["FET024_BASE_ARTICULATION_PHYSX\n0.1.0"] --> FET024N
+    FET032["FET032_PACKAGING_INTROSPECTION\n0.1.0"] --> FET030
+    FET033["FET033_SIMREADY_PACKAGING\n0.1.0"] --> FET031
 ```
 
 ## Edge list (feature → depends on)
@@ -69,6 +75,8 @@ flowchart LR
 | FET022_DRIVEN_JOINTS_PHYSX | 0.1.0 | FET004_ROBOT_PHYSX 0.1.0 |
 | FET022_DRIVEN_JOINTS_ISAAC | 0.1.0 | FET022_DRIVEN_JOINTS_PHYSX 0.1.0 |
 | FET024_BASE_ARTICULATION_PHYSX | 0.1.0 | FET024_BASE_ARTICULATION_NEUTRAL 0.1.0 |
+| FET032_PACKAGING_INTROSPECTION | 0.1.0 | FET030_PACKAGING_CORE 0.1.0 |
+| FET033_SIMREADY_PACKAGING | 0.1.0 | FET031_PACKAGE_SELF_CONTAINED 0.1.0 |
 
 ## No dependencies (roots or standalone)
 
@@ -83,6 +91,8 @@ flowchart LR
 - FET021_ROBOT_CORE_RUNNABLE 0.2.0  
 - FET023_ROBOT_MATERIALS 0.1.0  
 - FET024_BASE_ARTICULATION_NEUTRAL 0.1.0  
+- FET030_PACKAGING_CORE 0.1.0
+- FET031_PACKAGE_SELF_CONTAINED 0.1.0
 
 (Other feature JSONs without a `dependencies` key or with empty `dependencies` are also dependency roots.)
 
@@ -93,3 +103,4 @@ flowchart LR
 - **Isaac composition:** FET003_BASE_PHYSX → FET006_BASE_ISAACSIM, FET100_BASE_ISAACSIM  
 - **Driven joints:** FET004_BASE_NEUTRAL → FET022_DRIVEN_JOINTS_NEUTRAL; FET004_ROBOT_PHYSX → FET022_DRIVEN_JOINTS_PHYSX → FET022_DRIVEN_JOINTS_ISAAC  
 - **Articulation:** FET024_BASE_ARTICULATION_NEUTRAL → FET024_BASE_ARTICULATION_PHYSX  
+- **SimReady packaging:** FET031_PACKAGE_SELF_CONTAINED → FET033_SIMREADY_PACKAGING

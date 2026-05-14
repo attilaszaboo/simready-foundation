@@ -16,10 +16,10 @@ import os
 from pathlib import Path
 
 import omni.capabilities as cap
-from omni.asset_validator.core import (
+from omni.asset_validator import (
     BaseRuleChecker,
     register_requirements,
-    registerRule,
+    register_rule,
 )
 from pxr import Ar, Sdf, Usd, UsdGeom, UsdShade, UsdUtils
 
@@ -31,7 +31,11 @@ ZipFile = getattr(Usd, "ZipFile", getattr(Sdf, "ZipFile", object))
 ZipFile = getattr(Usd, "ZipFile", getattr(Sdf, "ZipFile", object))
 
 
-@registerRule("AtomicAsset")
+# Older USD had ZipFile in the Usd namespace, but newer versions have it in the Sdf namespace.
+ZipFile = getattr(Usd, "ZipFile", getattr(Sdf, "ZipFile", object))
+
+
+@register_rule("AtomicAsset")
 @register_requirements(cap.AtomicAssetRequirements.AA_001, override=True)
 class AnchoredAssetPathsChecker(BaseRuleChecker):
     """
@@ -163,7 +167,7 @@ class AnchoredAssetPathsChecker(BaseRuleChecker):
             self._check_valid_anchored_path(payload, layer, dependency_type="Payload")
 
 
-@registerRule("AtomicAsset")
+@register_rule("AtomicAsset")
 @register_requirements(cap.AtomicAssetRequirements.AA_002, override=True)
 class SupportedFileTypesChecker(BaseRuleChecker):
     """

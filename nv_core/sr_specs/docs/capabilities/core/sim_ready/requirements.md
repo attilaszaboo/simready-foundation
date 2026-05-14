@@ -1,9 +1,10 @@
-# Naming and Paths Requirements
+# SimReady Requirements
 
-This page contains all requirements for the Naming and Paths capability.
+This page contains all requirements for the SimReady capability.
 
 ```{toctree}
 :maxdepth: 1
 
 requirements/metadata-whitelist
+requirements/thumbnail-exist
 ```

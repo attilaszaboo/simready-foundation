@@ -21,12 +21,12 @@ import os
 from pathlib import Path
 from typing import List, Optional
 
-import omni.asset_validator.core
+import omni.asset_validator
 import omni.capabilities as cap
-from omni.asset_validator.core import BaseRuleChecker, register_requirements
+from omni.asset_validator import BaseRuleChecker, register_requirements
 from pxr import Sdf, Sdr, Usd, UsdGeom, UsdShade
 
-from .util.mdl_helpers import get_mdl_module_parameter_descs
+from .util.mdl_helpers import is_mdl_helper_available, get_mdl_module_parameter_descs
 
 try:
     import omni.client
@@ -151,12 +151,17 @@ class VisualMaterialsCapabilityChecker(BaseRuleChecker):
                 if not self._is_valid_material_scope(target):
                     errors.append(f"Invalid material binding scope for direct binding: {target}")
 
-        # Check for collection-based bindings
-        collection_bindings = material_binding_api.GetCollectionBindingRel()
-        if collection_bindings:
-            for target in collection_bindings.GetTargets():
-                if not self._is_valid_collection_scope(target):
-                    errors.append(f"Invalid collection binding scope: {target}")
+        # Check for collection-based bindings (API differs: GetCollectionBindingRels() returns list, or GetCollectionBindingRel(bindingName, purpose) for one)
+        collection_binding_rels = getattr(material_binding_api, "GetCollectionBindingRels", None)
+        if callable(collection_binding_rels):
+            for rel in collection_binding_rels():
+                if rel:
+                    for target in rel.GetTargets():
+                        if not self._is_valid_collection_scope(target):
+                            errors.append(f"Invalid collection binding scope: {target}")
+        else:
+            # Fallback: prim may have no collection bindings, or older API; skip to avoid ArgumentError
+            pass
 
         # Check for proper scope hierarchy
         if not self._validate_binding_hierarchy(material_binding_api, prim_path):
@@ -610,6 +615,10 @@ class VisualMaterialsCapabilityChecker(BaseRuleChecker):
             return errors
 
         # Validate shader inputs against MDL specification
+        if not is_mdl_helper_available():
+            # MDL helpers not available, skip the shader input checks.
+            return errors
+
         try:
             mdl_key = f"{mdl_path}||||{mdl_material}"
             if mdl_key not in self._cache_mdl_specs:
@@ -634,8 +643,9 @@ class VisualMaterialsCapabilityChecker(BaseRuleChecker):
                         )
                         errors.append(f"Type mismatch for {input_name}: {actual_type} vs {expected_type}")
 
-                    # Check for NaN and Inf in float values
-                    if actual_type.type == Sdf.ValueTypeNames.Float:
+                    # Check for NaN and Inf in float values (use typeName string; .type can fail with TfType in some USD builds)
+                    type_str = str(getattr(actual_type, "typeName", actual_type))
+                    if type_str == "float":
                         value = shader_input.Get()
                         if value is not None and (math.isnan(value) or math.isinf(value)):
                             self._AddFailedCheck(

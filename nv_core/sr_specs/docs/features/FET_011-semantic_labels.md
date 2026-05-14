@@ -1,22 +1,31 @@
 # Feature: `ID:011 - Semantic Labels - Base`
 
+| **Property**            | **Value**         |
+|-------------------------|-------------------|
+| Proprietary Techs       | `Core USD, Open USD, NVIDIA Omniverse, RTX` |
+| Dependency              | `None`                      |
+|Internal ID              | `FET011_BASE_NEUTRAL`|
+
 ## Description
 This feature describes the requirements necessary to have semantic label attributes on geometry prims. These semantics may be used to provide ground truth for ML training by verifying perception system identification and classification of objects.
 
-| **Property**            | **Value**                   |
-|-------------------------|-----------------------------|
-| Proprietary Techs       | `Core USD, Open USD, NVIDIA Omniverse, RTX` |
-| Dependency              | `None`                      |
+## Dependency Graph
+
+This feature has no dependencies and no other features depend on it directly.
+
+## Use Cases
+
+Products that consume this feature:
+
+- NDAS SDG / Stargate
+- MEGA
+- Lightwheel SOW1
 
 ## Neutral Format
 
 ### Version 0.2.0
 <details>
 <summary><strong>Details</strong></summary>
-
-| **Property**            | **Value**         |
-|-------------------------|-------------------|
-|Internal ID              | `FET011_BASE_NEUTRAL`|
 
 #### Used in Profiles
 

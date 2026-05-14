@@ -14,7 +14,7 @@
 # limitations under the License.
 from enum import Enum
 
-import omni.asset_validator.core
+import omni.asset_validator
 from pxr import Usd, UsdGeom, UsdShade
 
 from .. import Requirement
@@ -38,9 +38,9 @@ class ExampleCapReqs(Requirement, Enum):
     )
 
 
-@omni.asset_validator.core.registerRule("EXAMPLE")
-@omni.asset_validator.core.register_requirements(ExampleCapReqs.EX_01)
-class HasMeshChecker(omni.asset_validator.core.BaseRuleChecker):
+@omni.asset_validator.register_rule("EXAMPLE")
+@omni.asset_validator.register_requirements(ExampleCapReqs.EX_01)
+class HasMeshChecker(omni.asset_validator.BaseRuleChecker):
     def CheckStage(self, stage) -> None:
         default_prim = stage.GetDefaultPrim()
         if not default_prim:
@@ -56,9 +56,9 @@ class HasMeshChecker(omni.asset_validator.core.BaseRuleChecker):
         return "Should have at least one mesh."
 
 
-@omni.asset_validator.core.registerRule("EXAMPLE")
-@omni.asset_validator.core.register_requirements(ExampleCapReqs.EX_02)
-class BasicMaterialChecker(omni.asset_validator.core.BaseRuleChecker):
+@omni.asset_validator.register_rule("EXAMPLE")
+@omni.asset_validator.register_requirements(ExampleCapReqs.EX_02)
+class BasicMaterialChecker(omni.asset_validator.BaseRuleChecker):
     def CheckStage(self, stage) -> None:
         default_prim = stage.GetDefaultPrim()
         if not default_prim:
@@ -81,9 +81,9 @@ class BasicMaterialChecker(omni.asset_validator.core.BaseRuleChecker):
         return "All meshes should have a material called basic_material bound to them."
 
 
-@omni.asset_validator.core.registerRule("EXAMPLE")
-@omni.asset_validator.core.register_requirements(ExampleCapReqs.EX_03)
-class TestPrimChecker(omni.asset_validator.core.BaseRuleChecker):
+@omni.asset_validator.register_rule("EXAMPLE")
+@omni.asset_validator.register_requirements(ExampleCapReqs.EX_03)
+class TestPrimChecker(omni.asset_validator.BaseRuleChecker):
     def CheckStage(self, stage) -> None:
         default_prim = stage.GetDefaultPrim()
         if not default_prim:

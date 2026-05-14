@@ -30,7 +30,7 @@ Additional checks:
 ```usd
 # valid joint with drive 
 def PhysicsRevoluteJoint "ref_joint" (
-    prepend apiSchemas = ["PhysxJointAPI", "PhysicsDriveAPI:angular", "PhysxJointStateAPI:angular"] # Driving joints must contain joint drive api
+    prepend apiSchemas = ["PhysxJointAPI", "PhysicsDriveAPI:angular", "PhysicsJointStateAPI:angular"] # Driving joints must contain joint drive api
 )
 {
     uniform token physics:axis = "Z"
@@ -40,7 +40,7 @@ def PhysicsRevoluteJoint "ref_joint" (
 
 # valid joint with mimic joint
 def PhysicsRevoluteJoint "mimic_joint" (
-    prepend apiSchemas = ["PhysxJointAPI", "PhysxMimicJointAPI:rotZ", "PhysxJointStateAPI:angular"] #Mimic joint must contain mimic api
+    prepend apiSchemas = ["PhysxJointAPI", "PhysxMimicJointAPI:rotZ", "PhysicsJointStateAPI:angular"] #Mimic joint must contain mimic api
 )
 {
     float drive:angular:physics:damping = 0 # damping must be 0
@@ -68,3 +68,4 @@ def PhysicsRevoluteJoint "mimic_joint" (
 
 * [PhysX Drive API Documentation](https://openusd.org/dev/api/class_usd_physics_drive_a_p_i.html)
 * [PhysX Mimic API Documentation](https://openusd.org/dev/api/class_usd_physics_mimic_a_p_i.html)
+* [PhysxSchemaJointStateAPI Class Reference](https://docs.omniverse.nvidia.com/kit/docs/omni_usd_schema_physics/latest/physxschema/class_physx_schema_joint_state_a_p_i.html)

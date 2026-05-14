@@ -16,7 +16,7 @@ __all__ = ["RobotCoreValidation"]
 
 from enum import Enum
 
-import omni.asset_validator.core
+import omni.asset_validator
 from pxr import Usd, UsdPhysics
 
 from ... import Requirement
@@ -103,9 +103,9 @@ def get_overridden_attributes(prim):
     return overridden_attrs
 
 
-@omni.asset_validator.core.registerRule("RobotCore")
-@omni.asset_validator.core.register_requirements(RobotCoreCapReq.RC_001, override=True)
-class CleanFolder(omni.asset_validator.core.BaseRuleChecker):
+@omni.asset_validator.register_rule("RobotCore")
+@omni.asset_validator.register_requirements(RobotCoreCapReq.RC_001, override=True)
+class CleanFolder(omni.asset_validator.BaseRuleChecker):
     """Validates that robot asset folders don't contain unexpected files.
 
     This rule checks that the folder containing a robot asset doesn't contain
@@ -135,9 +135,9 @@ class CleanFolder(omni.asset_validator.core.BaseRuleChecker):
             )
 
 
-@omni.asset_validator.core.registerRule("RobotCore")
-@omni.asset_validator.core.register_requirements(RobotCoreCapReq.RC_002, override=True)
-class NoOverrides(omni.asset_validator.core.BaseRuleChecker):
+@omni.asset_validator.register_rule("RobotCore")
+@omni.asset_validator.register_requirements(RobotCoreCapReq.RC_002, override=True)
+class NoOverrides(omni.asset_validator.BaseRuleChecker):
     """Validates that prims don't have overridden attributes.
 
     This rule checks that prims don't have attributes with the SpecifierOver specifier,
@@ -157,9 +157,9 @@ class NoOverrides(omni.asset_validator.core.BaseRuleChecker):
             )
 
 
-@omni.asset_validator.core.registerRule("RobotCore")
-@omni.asset_validator.core.register_requirements(RobotCoreCapReq.RC_003, override=True)
-class RobotNaming(omni.asset_validator.core.BaseRuleChecker):
+@omni.asset_validator.register_rule("RobotCore")
+@omni.asset_validator.register_requirements(RobotCoreCapReq.RC_003, override=True)
+class RobotNaming(omni.asset_validator.BaseRuleChecker):
     """Validates that robot assets follow the standard naming convention.
 
     This rule checks that robot assets follow the naming convention of
@@ -198,9 +198,9 @@ class RobotNaming(omni.asset_validator.core.BaseRuleChecker):
             )
 
 
-@omni.asset_validator.core.registerRule("RobotCore")
-@omni.asset_validator.core.register_requirements(RobotCoreCapReq.RC_004, override=True)
-class ThumbnailExists(omni.asset_validator.core.BaseRuleChecker):
+@omni.asset_validator.register_rule("RobotCore")
+@omni.asset_validator.register_requirements(RobotCoreCapReq.RC_004, override=True)
+class ThumbnailExists(omni.asset_validator.BaseRuleChecker):
     """Validates that robot assets have a thumbnail image.
 
     This rule checks that robot assets have a thumbnail image at the expected
@@ -219,9 +219,9 @@ class ThumbnailExists(omni.asset_validator.core.BaseRuleChecker):
             )
 
 
-@omni.asset_validator.core.registerRule("RobotCore")
-@omni.asset_validator.core.register_requirements(RobotCoreCapReq.RC_005, override=True)
-class VerifyRobotPhysicsAttributesSourceLayer(omni.asset_validator.core.BaseRuleChecker):
+@omni.asset_validator.register_rule("RobotCore")
+@omni.asset_validator.register_requirements(RobotCoreCapReq.RC_005, override=True)
+class VerifyRobotPhysicsAttributesSourceLayer(omni.asset_validator.BaseRuleChecker):
     """Validates that physics attributes are authored in the physics layer.
 
     This rule checks that physics attributes in robot assets are authored in
@@ -244,9 +244,9 @@ class VerifyRobotPhysicsAttributesSourceLayer(omni.asset_validator.core.BaseRule
                         )
 
 
-@omni.asset_validator.core.registerRule("RobotCore")
-@omni.asset_validator.core.register_requirements(RobotCoreCapReq.RC_006, override=True)
-class VerifyRobotPhysicsSchemaSourceLayer(omni.asset_validator.core.BaseRuleChecker):
+@omni.asset_validator.register_rule("RobotCore")
+@omni.asset_validator.register_requirements(RobotCoreCapReq.RC_006, override=True)
+class VerifyRobotPhysicsSchemaSourceLayer(omni.asset_validator.BaseRuleChecker):
     """Validates that physics schemas are applied in the physics layer.
 
     This rule checks that physics schemas in robot assets are applied in
@@ -276,9 +276,9 @@ class VerifyRobotPhysicsSchemaSourceLayer(omni.asset_validator.core.BaseRuleChec
                             )
 
 
-@omni.asset_validator.core.registerRule("RobotCore")
-@omni.asset_validator.core.register_requirements(RobotCoreCapReq.RC_007, override=True)
-class RobotSchema(omni.asset_validator.core.BaseRuleChecker):
+@omni.asset_validator.register_rule("RobotCore")
+@omni.asset_validator.register_requirements(RobotCoreCapReq.RC_007, override=True)
+class RobotSchema(omni.asset_validator.BaseRuleChecker):
     """Validates that robot assets have the required RobotAPI and relationships.
 
     This rule checks that robot assets have a default prim with the RobotAPI applied
@@ -335,9 +335,9 @@ class RobotSchema(omni.asset_validator.core.BaseRuleChecker):
             )
 
 
-@omni.asset_validator.core.registerRule("RobotCore")
-@omni.asset_validator.core.register_requirements(RobotCoreCapReq.RC_008, override=True)
-class RobotType(omni.asset_validator.core.BaseRuleChecker):
+@omni.asset_validator.register_rule("RobotCore")
+@omni.asset_validator.register_requirements(RobotCoreCapReq.RC_008, override=True)
+class RobotType(omni.asset_validator.BaseRuleChecker):
     """Validates that robot assets have the required robot type.
 
     This rule checks that robot assets have the required robot type and that it is one of the allowed values.
@@ -397,9 +397,9 @@ class RobotType(omni.asset_validator.core.BaseRuleChecker):
             return
 
 
-@omni.asset_validator.core.registerRule("RobotCore")
-@omni.asset_validator.core.register_requirements(RobotCoreCapReq.RC_009, override=True)
-class RootJointPinned(omni.asset_validator.core.BaseRuleChecker):
+@omni.asset_validator.register_rule("RobotCore")
+@omni.asset_validator.register_requirements(RobotCoreCapReq.RC_009, override=True)
+class RootJointPinned(omni.asset_validator.BaseRuleChecker):
     """Validates that the root joint is pinned according to the robot type.
 
     This rule checks that the root joint is pinned according to the robot type.

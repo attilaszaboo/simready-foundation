@@ -1,16 +1,46 @@
 # Feature: `ID:003 - RBD Physics - Base`
+
+| **Property**            | **Value**         |
+|-------------------------|-------------------|
+|Internal ID              | `FET003_BASE_NEUTRAL`|
+
 ## Description
 Support for rigid body dynamics (RBD). This feature enables simulation of physically accurate motion and collisions for props and dynamic assets. It is suitable for testing, validation, or reference applications where basic physical interactions are required.
+
+## Dependency Graph
+
+```{mermaid}
+flowchart LR
+    FET003N["FET003_BASE_NEUTRAL\n0.1.0"]
+    FET003P["FET003_BASE_PHYSX\n0.1.0"]
+    FET004N["FET004_BASE_NEUTRAL\n0.1.0"]
+    FET004P["FET004_BASE_PHYSX\n0.1.0"]
+    FET100["FET100_BASE_ISAACSIM\n0.1.0"]
+
+    FET003P --> FET003N
+    FET004N --> FET003N
+    FET004P --> FET003P
+    FET100 --> FET003P
+
+    classDef current fill:#90EE90,stroke:#333
+    classDef other fill:#fff,stroke:#333
+    class FET003N,FET003P current
+    class FET004N,FET004P,FET100 other
+```
+
+## Use Cases
+
+Products that consume this feature:
+
+- IsaacSim
+- MEGA
+- Lightwheel SOW1
 
 ## Neutral Format
 ### Version 0.1.0
 
 <details>
 <summary><strong>Details</strong></summary>
-
-| **Property**            | **Value**         |
-|-------------------------|-------------------|
-|Internal ID              | `FET003_BASE_NEUTRAL`|
 
 #### Used in Profiles
 
@@ -55,7 +85,7 @@ This version is used in the following profiles:
       * RB.010 | Version 0.1.0
       * [Rule | Implementation](../capabilities/physics_bodies/physics_rigid_bodies/validation.py)
 * Capability: [Core/Atomic_Asset](../capabilities/core/atomic_asset/capability-atomic_asset.md)
-  * Requirements 
+  * Requirements
     * [Anchored-Asset-Paths](../capabilities/core/atomic_asset/requirements/anchored-asset-paths.md)
       * AA.001 | Version 0.1.0
       * [Rule | Implementation](../capabilities/core/atomic_asset/validation.py)
@@ -63,7 +93,7 @@ This version is used in the following profiles:
       * AA.002 | Version 0.1.0
       * [Rule | Implementation](../capabilities/core/atomic_asset/validation.py)
 * Capability: [Core/Units](../capabilities/core/units/requirements.md)
-  * Requirements 
+  * Requirements
     * [Kilograms-Per-Unit](../capabilities/core/units/requirements/kilograms-per-unit.md)
       * UN.003 | Version 0.1.0
       * [Rule | Implementation](../capabilities/core/units/validation.py)
@@ -76,7 +106,7 @@ This version is used in the following profiles:
     * [Upaxis](../capabilities/core/units/requirements/upaxis.md)
       * UN.001 | Version 0.1.0
       * [Rule | Implementation](../capabilities/core/units/validation.py)
-    
+
 * Capability: [Visualization/Geometry](../capabilities/visualization/geometry/capability-geometry.md)
   * Requirements
     * [At-Least-One-Imageable-Geometry](../capabilities/visualization/geometry/requirements/at-least-one-imageable-geometry.md)
@@ -88,10 +118,10 @@ This version is used in the following profiles:
         * Error should be thrown if mesh is NOT triangles.  This has a can throw off automatic convex-hull generation if mesh is composed of NGONS.
     * [UsdGeom-Mesh-Manifold](../capabilities/visualization/geometry/requirements/usdgeom-mesh-manifold.md)
       * VG.007 | Version 0.1.0
-      * [Rule | Implementation](../capabilities/visualization/geometry/validation.py) 
+      * [Rule | Implementation](../capabilities/visualization/geometry/validation.py)
 
 * Capability: [Visualization/Materials](../capabilities/visualization/materials/capability-materials.md)
-  * Requirements 
+  * Requirements
     * [Material-Bind-Scope](../capabilities/visualization/materials/requirements/material-bind-scope.md)
       * VM.BIND.001 | Version 0.1.0
     * [Material-Preview-Surface](../capabilities/visualization/materials/requirements/material-preview-surface.md)

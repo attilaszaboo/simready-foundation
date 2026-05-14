@@ -10,4 +10,5 @@ Physics Bodies <physics_bodies/physics_bodies>
 Hierarchy <hierarchy/hierarchy>
 Non-Visual Sensors <nonvisual_sensors/nonvisual_sensors>
 Semantic Labels <semantic_labels/capability-semantic_labels>
+Packaging <packaging/packaging>
 Example <example/example>

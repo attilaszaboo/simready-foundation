@@ -1,21 +1,31 @@
 # Feature: `ID:005 - Simulate Grasp Physics - Base`
 
-## Description
-Support for grasping feature. This feature enables a prop to be considered "graspable".  Conditions to pass are related to colliders, physics materials, and rigid bodies.  
+| **Property**            | **Value**         |
+|-------------------------|-------------------|
+| Internal ID             | `FET005_BASE_NEUTRAL`|
 
 
 ## Description
+Support for grasping feature. This feature enables a prop to be considered "graspable".  Conditions to pass are related to colliders, physics materials, and rigid bodies.
 
 The graspable feature comprises a list of requirements that enable whether or not a particular prop is graspable via robotic grippers. It is worth noting that graspable feature requires a runtime test component to identify if the grasp vectors are indeed correct.
+
+## Dependency Graph
+
+This feature has no dependencies and no other features depend on it directly.
+
+## Use Cases
+
+Products that consume this feature:
+
+- IsaacSim
+- MEGA
+- Lightwheel SOW1
 
 ## Neutral Format
 ### Version 0.1.0
 <details>
 <summary><strong>Details</strong></summary>
-
-| **Property**            | **Value**         |
-|-------------------------|-------------------|
-| Internal ID             | `FET005_BASE_NEUTRAL`|
 
 #### Used in Profiles
 
@@ -38,4 +48,3 @@ This version is used in the following profiles:
 * More discussions will follow
 
 </details>
-

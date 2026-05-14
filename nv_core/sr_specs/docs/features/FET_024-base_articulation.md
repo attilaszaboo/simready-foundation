@@ -2,6 +2,21 @@
 
 ## Description
 
+Base articulation requirements for assets with articulated physics bodies.
+
+## Dependency Graph
+
+```{mermaid}
+flowchart LR
+    FET024N["FET024_BASE_ARTICULATION_NEUTRAL\n0.1.0"]
+    FET024P["FET024_BASE_ARTICULATION_PHYSX\n0.1.0"]
+
+    FET024P --> FET024N
+
+    classDef current fill:#90EE90,stroke:#333
+    class FET024N,FET024P current
+```
+
 ## Neutral Format
 
 ### Version 0.1.0

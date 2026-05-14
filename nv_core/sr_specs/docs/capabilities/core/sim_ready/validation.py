@@ -13,13 +13,14 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 """
-Validation rules for Naming and Paths capability.
+Validation rules for SimReady capability.
 """
 
 import asyncio
 import os
 import re
 from datetime import datetime
+from pathlib import Path
 from typing import List, Optional, Union
 
 try:
@@ -27,21 +28,18 @@ try:
 except ImportError:
     omni_client = None
 
+import omni.asset_validator
 import omni.capabilities as cap
-from omni.asset_validator.core import BaseRuleChecker, register_requirements
-from pxr import Sdf, Usd
+from pxr import Ar, Sdf, Usd
 
 
-@omni.asset_validator.core.registerRule("SimReady")
-@omni.asset_validator.core.register_requirements(cap.SimReadyRequirements.SR_001)
-class SimReadyCapabilityChecker(BaseRuleChecker):
+@omni.asset_validator.register_rule("SimReady")
+@omni.asset_validator.register_requirements(cap.SimReadyRequirements.SR_001)
+class SimReadyCapabilityChecker(omni.asset_validator.BaseRuleChecker):
     """Checker for Sim Ready capability requirements."""
 
-    def __init__(self):
-        super().__init__()
-
     def CheckStage(self, stage: Usd.Stage) -> None:
-        """Check all NP requirements."""
+        """Check all SimReady requirements."""
         errors = []
 
         errors.extend(self.check_sr001_metadata_whitelist(stage))
@@ -83,3 +81,22 @@ class SimReadyCapabilityChecker(BaseRuleChecker):
             )
 
         return errors
+
+
+@omni.asset_validator.register_rule("SimReady")
+@omni.asset_validator.register_requirements(cap.SimReadyRequirements.SR_002)
+class ThumbnailExists(omni.asset_validator.BaseRuleChecker):
+    """Validates that SimReady assets have a thumbnail image."""
+
+    def CheckStage(self, stage: Usd.Stage) -> None:
+        real_path = stage.GetRootLayer().realPath
+        if not real_path:
+            return
+        asset_path = Path(real_path)
+        thumbnail_path = str(asset_path.parent / ".thumbs" / "256x256" / (asset_path.name + ".png"))
+        if not Ar.GetResolver().Resolve(thumbnail_path):
+            self._AddFailedCheck(
+                requirement=cap.SimReadyRequirements.SR_002,
+                message=f"No thumbnail found at {thumbnail_path} for SimReady asset <{real_path}>",
+                at=stage,
+            )

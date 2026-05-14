@@ -6,16 +6,29 @@ This repository uses **Git LFS** to track binary and USD asset files (`.usda`, `
 
 ### 1. Install Git LFS (once per machine)
 
-```bash
-# macOS (Homebrew)
-brew install git-lfs
+<details open>
+<summary><strong>Windows (PowerShell)</strong></summary>
 
-# Ubuntu / Debian
-sudo apt-get install git-lfs
-
-# Windows (winget)
+```powershell
 winget install GitHub.GitLFS
 ```
+
+If `winget` is not recognized, run these first:
+
+```powershell
+Add-AppxPackage -RegisterByFamilyName -MainPackage "Microsoft.DesktopAppInstaller_8wekyb3d8bbwe"
+Install-Module -Name Microsoft.WinGet.Client -Force -Repository PSGallery
+Repair-WinGetPackageManager
+```
+</details>
+
+<details>
+<summary><strong>Linux (Ubuntu / Debian)</strong></summary>
+
+```bash
+sudo apt-get install git-lfs
+```
+</details>
 
 After installing, run the one-time setup:
 
@@ -50,10 +63,21 @@ If any files still show as pointer files, re-run `git lfs pull`.
 
 ### 4. Install Python
 
-The product requires Python 3.12 or later.
+The product requires **Python >=3.10,<3.13** (Python 3.12 recommended).
 
-- **Windows:** Download from [Python Release Python 3.12.0](https://www.python.org/downloads/release/python-3120/) and run the installer. Check **"Add Python to PATH"** during installation.
-- **Ubuntu / Debian:** `sudo apt-get install python3.12`
+<details open>
+<summary><strong>Windows</strong></summary>
+
+Download from [python.org/downloads](https://www.python.org/downloads/release/python-3120/) and run the installer. Check **"Add Python to PATH"** during installation. If you already have multiple Python versions, you can use the `py -3.12` launcher.
+</details>
+
+<details>
+<summary><strong>Linux (Ubuntu / Debian)</strong></summary>
+
+```bash
+sudo apt-get install python3.12
+```
+</details>
 
 Verify the installation:
 
@@ -63,28 +87,38 @@ python --version
 
 ### 5. Create a virtual environment
 
-```bash
-python -m venv myenv
+> [!IMPORTANT]
+> Use a **dedicated virtual environment** for SimReady validation. The `simready-validate` tool and its dependencies (`omniverse-asset-validator`, `usd-core`) can conflict with other packages. A clean venv avoids hard-to-debug import errors.
 
-# Activate — Windows
-myenv\Scripts\activate
+<details open>
+<summary><strong>Windows (PowerShell)</strong></summary>
 
-# Activate — macOS / Linux
-source myenv/bin/activate
+```powershell
+python -m venv .venv
+.venv\Scripts\activate
 ```
+</details>
 
-Or use Conda if you prefer.
+<details>
+<summary><strong>Linux</strong></summary>
+
+```bash
+python -m venv .venv
+source .venv/bin/activate
+```
+</details>
 
 ### 6. Install dependencies
 
-Install the core USD libraries and the SimReady Foundation dependencies for the validator sample:
+From the repository root, install the SimReady validation library:
 
 ```bash
-cd nv_core/validator_sample/
-pip install -r requirements.txt
+pip install -r nv_core/validator_sample/requirements.txt
 ```
 
-This installs `omniverse-asset-validator`, `omniverse-usd-profiles`, and `usd-core` (the Python bindings for working with USD assets).
+This installs `simready-validate` (which pulls in `omniverse-asset-validator` and `usd-core`) and `omniverse-usd-profiles`.
+
+You're now ready to go. See [Next steps](#next-steps) for guides on validation, profiles, and more.
 
 ## About SimReady Foundation
 
@@ -99,9 +133,6 @@ The framework is built around a layered hierarchy:
 | **Feature** | A set of requirements that together describe a queryable property of an asset | *Minimal Placeable Visual*, *RBD Physics*, *Driven Joints* |
 | **Profile** | A bundle of features that defines what an asset must satisfy for a given use case | *Prop-Robotics-Neutral*, *Robot-Body-Isaac* |
 
-> [!IMPORTANT]
-> The current validators provided in `nv_core/sr_specs` will not function as they require many more dependencies than this repo provides by itself. Those dependencies will be made available / removed in future releases.
-
 ### Profiles
 
 Profiles are the top-level contracts between asset creators and consumers. Each profile targets a specific simulation scenario and lists the features (and their versions) that an asset must pass. Production profiles in `nv_core/sr_specs/` include:
@@ -115,11 +146,23 @@ Profiles are the top-level contracts between asset creators and consumers. Each 
 
 ### Use cases
 
-- **Static validation** — check USD assets against a profile's requirements using the Omniverse Asset Validator or the `validate_asset.py` script in this sample.
+- **Static validation** — check USD assets against a profile's requirements using the `simready-validate` CLI or the `simready.validate` Python API.
 - **Asset transformation** — convert assets between profiles (e.g. Neutral to PhysX to Isaac).
 - **CI / CD** — automate validation in Jenkins or local runners.
 
 ### Where the specs live
 
-The full SimReady specifications—capabilities, features, profiles, and guides—are in `nv_core/sr_specs/docs/`. 
+The full SimReady specifications—capabilities, features, profiles, and guides—are in `nv_core/sr_specs/docs/`.
 
+## Next steps
+
+Once you have the environment set up, explore the guides in [`nv_core/sr_specs/docs/guides/`](nv_core/sr_specs/docs/guides/guides.md):
+
+| Guide | Description |
+|-------|-------------|
+| [SimReady Validation Workflow](nv_core/sr_specs/docs/guides/validate_workflow.md) | Run your first validation — commands, expected output, stamping, and troubleshooting |
+| [Getting Started](nv_core/sr_specs/docs/guides/getting_started.md) | Orientation — who SimReady is for, choosing a profile, and where to go next |
+| [SimReady Acceptance Workflow](nv_core/sr_specs/docs/guides/acceptance_workflow.md) | How new requirements, features, and profiles move through review |
+| [Features Expansion Workflow](nv_core/sr_specs/docs/guides/features_expansion_workflow.md) | Create technology-specific feature variants (e.g. neutral to PhysX) |
+| [Profiles Validation Workflow](nv_core/sr_specs/docs/guides/profiles_validation_workflow.md) | Create, version, and validate assets against profiles |
+| [Naming Conventions](nv_core/sr_specs/docs/guides/naming_conventions.md) | Asset and prim naming standards |

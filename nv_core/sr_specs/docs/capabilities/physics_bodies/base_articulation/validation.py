@@ -20,10 +20,13 @@ import typing
 # from omni.physx.bindings._physx import SETTING_UPDATE_TO_USD
 from enum import Enum
 
-import carb
-import omni.asset_validator.core
-import usdrt
-from pxr import PhysicsSchemaTools, PhysxSchema, Sdf, Usd, UsdPhysics, UsdUtils
+import omni.asset_validator
+from pxr import Usd, UsdPhysics
+
+try:
+    from pxr import PhysxSchema
+except ImportError:
+    PhysxSchema = None
 
 from ... import Requirement
 
@@ -82,6 +85,7 @@ def get_initial_collider_pairs(stage: Usd.Stage) -> typing.Set[typing.Tuple[str,
                 # Store as a tuple, ensuring consistent ordering
                 pair = tuple(sorted([collider0, collider1]))
                 unique_collider_pairs.add(pair)
+
 
     
     session_sub_layer = Sdf.Layer.CreateAnonymous()
@@ -151,6 +155,9 @@ def ComputeAdjacentMeshDict(stage: Usd.Stage) -> dict:
     if not defaultPrim or not defaultPrim.IsValid():
         return {}
 
+    if PhysxSchema is None:
+        raise RuntimeError("PhysxSchema is not available in this environment")
+
     adjacent_mesh_matrix = {}
 
     for prim in stage.Traverse():
@@ -176,9 +183,9 @@ def ComputeAdjacentMeshDict(stage: Usd.Stage) -> dict:
     return adjacent_mesh_matrix
 
 
-@omni.asset_validator.core.registerRule("BaseArticulation")
-@omni.asset_validator.core.register_requirements(BaseArticulationCapReq.BA_001, override=True)
-class HasArticulationRoot(omni.asset_validator.core.BaseRuleChecker):
+@omni.asset_validator.register_rule("BaseArticulation")
+@omni.asset_validator.register_requirements(BaseArticulationCapReq.BA_001, override=True)
+class HasArticulationRoot(omni.asset_validator.BaseRuleChecker):
     """Validates that none or more than one prim in the stage has the ArticulationRootAPI.
 
     This rule checks that the USD stage contains none or more than one prim with the
@@ -211,9 +218,9 @@ class HasArticulationRoot(omni.asset_validator.core.BaseRuleChecker):
             )
 
 
-@omni.asset_validator.core.registerRule("BaseArticulation")
-@omni.asset_validator.core.register_requirements(BaseArticulationCapReq.BA_002, override=True)
-class NonAdjacentCollisionMeshesDoNotClash(omni.asset_validator.core.BaseRuleChecker):
+@omni.asset_validator.register_rule("BaseArticulation")
+@omni.asset_validator.register_requirements(BaseArticulationCapReq.BA_002, override=True)
+class NonAdjacentCollisionMeshesDoNotClash(omni.asset_validator.BaseRuleChecker):
     """Validates that non-adjacent collision meshes don't intersect.
 
     This rule checks that collision meshes that aren't connected by joints don't
@@ -226,6 +233,9 @@ class NonAdjacentCollisionMeshesDoNotClash(omni.asset_validator.core.BaseRuleChe
         Args:
             stage: The USD stage to validate.
         """
+        if PhysxSchema is None:
+            self._AddError("PhysxSchema is not available in this environment; cannot check non-adjacent collision meshes")
+            return
         self.adjacent_mesh_matrix = ComputeAdjacentMeshDict(stage)  # Sdf Path of all joints
         self.collisions_pairs = get_initial_collider_pairs(
             stage

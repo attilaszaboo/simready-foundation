@@ -14,7 +14,7 @@
 # limitations under the License.
 from enum import Enum
 
-import omni.asset_validator.core
+import omni.asset_validator
 from pxr import Usd, UsdPhysics, UsdShade
 
 from ... import Requirement
@@ -28,9 +28,9 @@ class ColliderApproximationsCapReqs(Requirement, Enum):
     )
 
 
-@omni.asset_validator.core.registerRule("ColliderApproximations")
-@omni.asset_validator.core.register_requirements(ColliderApproximationsCapReqs.COL_001, override=True)
-class ColliderApproximationsCapabilityChecker(omni.asset_validator.core.BaseRuleChecker):
+@omni.asset_validator.register_rule("ColliderApproximations")
+@omni.asset_validator.register_requirements(ColliderApproximationsCapReqs.COL_001, override=True)
+class ColliderApproximationsCapabilityChecker(omni.asset_validator.BaseRuleChecker):
     COLLIDER_APPROXIMATION_REQUIREMENT = ColliderApproximationsCapReqs.COL_001
 
     def CheckStage(self, stage: Usd.Stage) -> None:

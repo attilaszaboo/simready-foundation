@@ -14,6 +14,8 @@ Driven joints must implement proper joint state API for simulation state managem
 
 Joint state APIs provide the necessary interface for tracking and controlling joint position, velocity, and other simulation properties. This ensures that driven joints can be properly monitored and controlled during simulation.
 
+> **Note:** Despite the `Physics` prefix in its USD schema token (`PhysicsJointStateAPI`), this schema is defined in the PhysX extension (`PhysxSchema` module), not in core `UsdPhysics`. In Python it is accessed as `PhysxSchema.JointStateAPI`.
+
 ## Why is it required?
 
 * To enable real-time monitoring of joint states during simulation
@@ -25,7 +27,7 @@ Joint state APIs provide the necessary interface for tracking and controlling jo
 ```usd
 # Valid: Joint with state API
 def PhysicsRevoluteJoint "RevoluteJoint" ( 
-    prepend apiSchemas = ["PhysxJointStateAPI:angular"] # Valid Joint State API
+    prepend apiSchemas = ["PhysicsJointStateAPI:angular"] # Valid Joint State API
 )
 {
     rel physics:body0 = </link_0>
@@ -36,7 +38,7 @@ def PhysicsRevoluteJoint "RevoluteJoint" (
 
 ## How to comply
 
-* Apply PhysxJointStateAPI (axis-specific) to driven joints
+* Apply PhysicsJointStateAPI (axis-specific) to driven joints
 * Ensure joint state properties are properly exposed
 * Configure state tracking for simulation requirements
 
@@ -48,3 +50,4 @@ def PhysicsRevoluteJoint "RevoluteJoint" (
 ## For More Information
 
 * [OpenUSD JointStateAPI Documentation](https://openusd.org/dev/api/usd_physics_page_front.html#usdPhysics_joint_state)
+* [PhysxSchemaJointStateAPI Class Reference](https://docs.omniverse.nvidia.com/kit/docs/omni_usd_schema_physics/latest/physxschema/class_physx_schema_joint_state_a_p_i.html)

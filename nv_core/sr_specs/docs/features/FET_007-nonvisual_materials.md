@@ -1,22 +1,33 @@
 # Feature: `ID:007 - Non-Visual Materials - Base`
 
+| **Property**            | **Value**                   |
+|-------------------------|-----------------------------|
+|Internal ID              | `FET007_BASE_NEUTRAL`|
+| Proprietary Techs       | `RTX`                       |
+| Dependency              | `None`                      |
+
+
 ## Description
 This feature describes the requirements necessary to have materials with non-visual sensor attributes that enable accurate sensor simulation (such as radar, lidar, thermal imaging). These attributes define material properties that affect sensor response but are not visible to the human eye.
 
-| **Property**            | **Value**                   |
-|-------------------------|-----------------------------|
-| Proprietary Techs       | `RTX`                       |
-| Dependency              | `None`                      |
+## Dependency Graph
+
+This feature has no dependencies and no other features depend on it directly.
+
+## Use Cases
+
+Products that consume this feature:
+
+- AV Sim
+- IsaacSim
+- MEGA
+- Lightwheel SOW1
 
 ## Neutral Format
 
 ### Version 0.2.0
 <details>
 <summary><strong>Details</strong></summary>
-
-| **Property**            | **Value**         |
-|-------------------------|-------------------|
-|Internal ID              | `FET007_BASE_NEUTRAL`|
 
 #### Used in Profiles
 

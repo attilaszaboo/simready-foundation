@@ -22,23 +22,176 @@ The root joint is the first joint in the `isaac:physics:robotJoints` relationshi
 
 ## Examples
 
+### Passing — Manipulator pinned via empty `body0` (world)
+
+A `UsdPhysics.Joint` with no `physics:body0` target is implicitly connected to the
+world frame. This is the most common way to pin a fixed-base robot.
+
 ```usd
-# Valid: Manipulator with pinned root (body0 or body1 is non-rigid / world)
 over "Robot" (
     prepend apiSchemas = ["IsaacRobotAPI"]
 )
 {
     token isaac:robotType = "Manipulator"
-    rel isaac:physics:robotJoints = [ </joints/root>, </joints/joint_1> ]
-    rel isaac:physics:robotLinks = [ </links/base>, </links/link_1> ]
+    rel isaac:physics:robotJoints = [ </Robot/joints/root>, </Robot/joints/joint_1> ]
+    rel isaac:physics:robotLinks = [ </Robot/links/base>, </Robot/links/link_1> ]
 }
-# Root joint: body0 = world (or non-rigid), body1 = base link -> pinned
 
-# Invalid: Manipulator with root joint not pinned (both bodies are rigid)
-# Root joint must have one body that is world or non-rigid for Manipulator/End Effector
+def Scope "joints"
+{
+    def PhysicsJoint "root"
+    {
+        # body0 has no target — interpreted as the world (pinned)
+        rel physics:body1 = </Robot/links/base>
+    }
+}
 
-# Invalid: Non-manipulator type with root joint pinned
-# For robot types other than Manipulator and End Effector, root must not be pinned
+def Scope "links"
+{
+    def Xform "base" (
+        prepend apiSchemas = ["PhysicsRigidBodyAPI"]
+    )
+    {
+    }
+}
+```
+
+### Passing — Manipulator pinned via empty `body1` (world)
+
+The world side can be on either relationship. Here `body1` is left empty instead.
+
+```usd
+def Scope "joints"
+{
+    def PhysicsJoint "root"
+    {
+        rel physics:body0 = </Robot/links/base>
+        # body1 has no target — interpreted as the world (pinned)
+    }
+}
+```
+
+### Passing — Manipulator pinned via non-rigid body prim
+
+Instead of leaving a body relationship empty, you can point it at a prim that does
+**not** have `PhysicsRigidBodyAPI`. The validator treats this the same as the world.
+
+```usd
+def Xform "world_anchor"
+{
+    # No PhysicsRigidBodyAPI — acts as a fixed anchor
+}
+
+def Scope "joints"
+{
+    def PhysicsJoint "root"
+    {
+        rel physics:body0 = </Robot/world_anchor>
+        rel physics:body1 = </Robot/links/base>
+    }
+}
+```
+
+### Passing — End Effector pinned (same rules as Manipulator)
+
+End Effectors follow the same pinning requirement. Any of the pinning
+methods above apply.
+
+```usd
+over "Gripper" (
+    prepend apiSchemas = ["IsaacRobotAPI"]
+)
+{
+    token isaac:robotType = "End Effector"
+    rel isaac:physics:robotJoints = [ </Gripper/joints/root>, </Gripper/joints/finger_1> ]
+    rel isaac:physics:robotLinks = [ </Gripper/links/base>, </Gripper/links/finger_1> ]
+}
+
+def Scope "joints"
+{
+    def PhysicsJoint "root"
+    {
+        # Pinned: body0 is empty (world)
+        rel physics:body1 = </Gripper/links/base>
+    }
+}
+```
+
+### Passing — Mobile robot with root joint **not** pinned
+
+For robot types other than Manipulator and End Effector, the root joint must have
+**both** bodies targeting prims with `PhysicsRigidBodyAPI`.
+
+```usd
+over "MobileBot" (
+    prepend apiSchemas = ["IsaacRobotAPI"]
+)
+{
+    token isaac:robotType = "Mobile"
+    rel isaac:physics:robotJoints = [ </MobileBot/joints/root>, </MobileBot/joints/wheel_1> ]
+    rel isaac:physics:robotLinks = [ </MobileBot/links/chassis>, </MobileBot/links/wheel_1> ]
+}
+
+def Scope "joints"
+{
+    def PhysicsJoint "root"
+    {
+        rel physics:body0 = </MobileBot/links/chassis>
+        rel physics:body1 = </MobileBot/links/body>
+    }
+}
+
+def Scope "links"
+{
+    def Xform "chassis" (
+        prepend apiSchemas = ["PhysicsRigidBodyAPI"]
+    )
+    {
+    }
+
+    def Xform "body" (
+        prepend apiSchemas = ["PhysicsRigidBodyAPI"]
+    )
+    {
+    }
+}
+```
+
+### Failing — Manipulator with both bodies rigid (not pinned)
+
+```usd
+# FAILS: Both body0 and body1 are rigid bodies, so the root joint is not pinned.
+# Manipulators require a pinned root joint.
+def Scope "joints"
+{
+    def PhysicsJoint "root"
+    {
+        rel physics:body0 = </Robot/links/chassis>   # has PhysicsRigidBodyAPI
+        rel physics:body1 = </Robot/links/base>      # has PhysicsRigidBodyAPI
+    }
+}
+```
+
+### Failing — Mobile robot with a pinned root joint
+
+```usd
+# FAILS: body0 is empty (world), making the root joint pinned.
+# Non-manipulator types must not have a pinned root joint.
+over "MobileBot" (
+    prepend apiSchemas = ["IsaacRobotAPI"]
+)
+{
+    token isaac:robotType = "Mobile"
+}
+
+def Scope "joints"
+{
+    def PhysicsJoint "root"
+    {
+        # body0 is empty — pinned to world, which is wrong for Mobile
+        rel physics:body1 = </MobileBot/links/chassis>
+    }
+}
 ```
 
 ## How to comply

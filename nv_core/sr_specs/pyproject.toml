@@ -14,8 +14,8 @@
 # limitations under the License.
 
 [project]
-name = "omniverse-simready-foundations"
-version = "0.2.0"
+name = "simready-foundation-core"
+version = "0.2.0a1"
 description = "SimReady Content Capabilities Validation Rules for Omniverse Asset Validator"
 authors = [
     {name = "NVIDIA"},
@@ -24,6 +24,7 @@ readme = "README.md"
 requires-python = ">=3.10,<3.13"
 dependencies = [
     "omniverse-asset-validator",
+    "numpy",
 ]
 
 [project.urls]
@@ -33,9 +34,18 @@ Documentation = "https://docs.omniverse.nvidia.com/content-capabilities"
 usd = ["usd-core>=22.11"]
 test = ["pytest"]
 
-[tool.hatch.build.targets.wheel]
-packages = ["docs"]
-sources = {"docs" = "simready_foundations"}
+[tool.hatch.build.hooks.custom]
+path = "build.py"
+
+[tool.hatch.build.targets.sdist]
+artifacts = [
+    "_build/docs",
+    "_build/python/omni/capabilities",
+]
+
+[tool.hatch.build.targets.wheel.force-include]
+"_build/docs" = "simready/foundation/core"
+"_build/python/omni/capabilities" = "simready/foundation/core/requirements"
 
 [build-system]
 requires = ["hatchling"]

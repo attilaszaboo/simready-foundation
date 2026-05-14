@@ -12,9 +12,10 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-import omni.timeline
-from omni.asset_validator.core import BaseRuleChecker
-from pxr import Sdf, Usd, UsdGeom, UsdPhysics, UsdUtils
+
+from omni.asset_validator import BaseRuleChecker
+
+from pxr import Gf, Sdf, Usd, UsdGeom, UsdPhysics, UsdUtils
 
 
 def get_stage_id(stage: Usd.Stage):
@@ -22,17 +23,6 @@ def get_stage_id(stage: Usd.Stage):
     if stage_id == -1:
         stage_id = UsdUtils.StageCache.Get().Insert(stage).ToLongInt()
     return stage_id
-
-
-def check_timeline_playing(checker: BaseRuleChecker, stage: Usd.Stage):
-    if omni.timeline.get_timeline_interface().is_playing():
-        checker._AddFailedCheck(
-            requirement=PhysicsBodiesCapReq.PB_001,
-            message="Timeline is playing",
-            at=stage,
-        )
-        return True
-    return False
 
 
 def _is_dynamic_body(usd_prim: Usd.Prim) -> bool:
@@ -84,10 +74,28 @@ class BaseRuleCheckerWCache(BaseRuleChecker):
         self._cache_value_to_list(self._is_under_articulation_root_cache, False, prim_list)
         return False
 
+    def _scale_is_uniform(self, scale: Gf.Vec3d) -> bool:
+        eps = 1.0e-5
+        # Find min and max scale values
+        if scale[0] < scale[1]:
+            lo, hi = scale[0], scale[1]
+        else:
+            lo, hi = scale[1], scale[0]
+
+        if scale[2] < lo:
+            lo = scale[2]
+        elif scale[2] > hi:
+            hi = scale[2]
+
+        if lo * hi < 0.0:
+            return False  # opposite signs
+
+        return hi - lo <= eps * lo if hi > 0.0 else lo - hi >= eps * hi
+
     def _check_non_uniform_scale(self, xformable: UsdGeom.Xformable) -> bool:
         tr = Gf.Transform(self._xform_cache.GetLocalToWorldTransform(xformable.GetPrim()))
         sc = tr.GetScale()
-        return _scale_is_uniform(sc)
+        return self._scale_is_uniform(sc)
 
     def _has_dynamic_body_parent(self, usd_prim: Usd.Prim, rb_api: UsdPhysics.RigidBodyAPI) -> tuple[bool, Usd.Prim]:
         # early exit on disabled RB, no cache information
@@ -132,4 +140,5 @@ class BaseRuleCheckerWCache(BaseRuleChecker):
 
         # nothing found until root encountered
         self._cache_value_to_list(self._is_a_or_under_a_dynamic_body_cache, (False, None), prim_list)
+
         return False, None

@@ -17,7 +17,7 @@ For each joint prim, drives and joint state APIs are collected and validated tog
 - drive maxForce must be authored, finite, and strictly greater than 0
 - the drive targetPosition/targetVelocity should be consistent with the joint state position/velocity within tolerance
 
-Consistency checks compare drive targets with PhysxJointStateAPI-derived values and warn when the absolute differences exceed 1e-2.
+Consistency checks compare drive targets with PhysicsJointStateAPI-derived values and warn when the absolute differences exceed 1e-2.
 
 ## Why is it required?
 
@@ -28,7 +28,7 @@ Consistency checks compare drive targets with PhysxJointStateAPI-derived values 
 ```usd
 # Valid: Angular drive and state schemas applied to revolute joint
 def PhysicsRevoluteJoint "RevoluteJoint" (
-    prepend apiSchemas =  ["PhysxJointAPI", "PhysicsDriveAPI:angular", "PhysxJointStateAPI:angular"] # apply angular drive and state schemas to angular joints
+    prepend apiSchemas =  ["PhysxJointAPI", "PhysicsDriveAPI:angular", "PhysicsJointStateAPI:angular"] # apply angular drive and state schemas to angular joints
 )
 {
     rel physics:body0 = </link_0>
@@ -39,7 +39,7 @@ def PhysicsRevoluteJoint "RevoluteJoint" (
 
 # Invalid: Angular drive and state schemas applied to a physics prismatic joint
 def PhysicsPrismaticJoint "PrismaticJoint" (
-    prepend apiSchemas =  ["PhysxJointAPI", "PhysicsDriveAPI:angular", "PhysxJointStateAPI:angular"] # apply angular drive and state schemas to prismatic joints
+    prepend apiSchemas =  ["PhysxJointAPI", "PhysicsDriveAPI:angular", "PhysicsJointStateAPI:angular"] # apply angular drive and state schemas to prismatic joints
 )
 {
     rel physics:body0 = </link_0>
@@ -63,3 +63,4 @@ def PhysicsPrismaticJoint "PrismaticJoint" (
 
 * [OpenUSD PhysicsDriveAPI Schema](https://openusd.org/dev/api/class_usd_physics_drive_a_p_i.html)
 * [USD Physics Joint Drive Documentation](https://openusd.org/dev/api/usd_physics_page_front.html#usdPhysics_joint_drive)
+* [PhysxSchemaJointStateAPI Class Reference](https://docs.omniverse.nvidia.com/kit/docs/omni_usd_schema_physics/latest/physxschema/class_physx_schema_joint_state_a_p_i.html)

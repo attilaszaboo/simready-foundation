@@ -17,11 +17,15 @@ __all__ = ["PhysicsDrivenJointsValidation"]
 from collections import defaultdict
 from enum import Enum
 
-import omni.asset_validator.core
-from pxr import Gf, PhysxSchema, Usd, UsdGeom, UsdPhysics
+import omni.asset_validator
+from pxr import Gf, Usd, UsdGeom, UsdPhysics
+
+try:
+    from pxr import PhysxSchema
+except ImportError:
+    PhysxSchema = None
 
 from ... import Requirement
-from ..utils import check_timeline_playing
 
 
 class DrivenJointsCapReq(Requirement, Enum):
@@ -167,6 +171,8 @@ def GetJointDrivesAndJointStates(joint):
     Returns:
         A tuple of (drive_apis, joint_state_apis) for the joint.
     """
+    if PhysxSchema is None:
+        raise RuntimeError("PhysxSchema is not available in this environment")
     driveAPIs = []
     joint_states = []
     if joint.IsA(UsdPhysics.RevoluteJoint):
@@ -229,9 +235,9 @@ def get_prismatic_or_revolute_limits(joint_prim: Usd.Prim) -> tuple[float, float
         return None, None
 
 
-@omni.asset_validator.core.registerRule("PhysicsDrivenJoints")
-@omni.asset_validator.core.register_requirements(DrivenJointsCapReq.DJ_001, override=True)
-class PhysicsDriveAndJointState(omni.asset_validator.core.BaseRuleChecker):
+@omni.asset_validator.register_rule("PhysicsDrivenJoints")
+@omni.asset_validator.register_requirements(DrivenJointsCapReq.DJ_001, override=True)
+class PhysicsDriveAndJointState(omni.asset_validator.BaseRuleChecker):
     """Validator to check physics driven joints for proper drive and joint state configuration."""
 
     def CheckPrim(self, prim: Usd.Prim) -> None:
@@ -304,9 +310,9 @@ class PhysicsDriveAndJointState(omni.asset_validator.core.BaseRuleChecker):
                         )
 
 
-@omni.asset_validator.core.registerRule("PhysicsDrivenJoints")
-@omni.asset_validator.core.register_requirements(DrivenJointsCapReq.DJ_002, override=True)
-class JointHasJointStateAPI(omni.asset_validator.core.BaseRuleChecker):
+@omni.asset_validator.register_rule("PhysicsDrivenJoints")
+@omni.asset_validator.register_requirements(DrivenJointsCapReq.DJ_002, override=True)
+class JointHasJointStateAPI(omni.asset_validator.BaseRuleChecker):
     """Validates that joints have the JointStateAPI applied.
 
     This rule checks that all joints (except fixed joints) have the PhysxSchema.JointStateAPI
@@ -335,6 +341,8 @@ class JointHasJointStateAPI(omni.asset_validator.core.BaseRuleChecker):
             elif prim.IsA(UsdPhysics.RevoluteJoint):
                 actuator_type = "angular"
 
+            if PhysxSchema is None:
+                raise RuntimeError("PhysxSchema is not available; cannot apply JointStateAPI fix")
             PhysxSchema.JointStateAPI.Apply(prim, actuator_type)
             edit_stage.Save()
 
@@ -344,6 +352,9 @@ class JointHasJointStateAPI(omni.asset_validator.core.BaseRuleChecker):
         Args:
             prim: The USD prim to validate.
         """
+        if PhysxSchema is None:
+            self._AddError("PhysxSchema is not available in this environment; cannot check JointStateAPI")
+            return
         if not UsdPhysics.Joint(prim) or UsdPhysics.FixedJoint(prim):
             return
 
@@ -360,7 +371,7 @@ class JointHasJointStateAPI(omni.asset_validator.core.BaseRuleChecker):
                 requirement=DrivenJointsCapReq.DJ_002,
                 message=f"{prim.GetPath()} Has no Joint State API",
                 at=prim,
-                suggestion=omni.asset_validator.core.Suggestion(
+                suggestion=omni.asset_validator.Suggestion(
                     message="Apply Joint State API", callable=self.apply_api
                 ),
             )
@@ -368,9 +379,9 @@ class JointHasJointStateAPI(omni.asset_validator.core.BaseRuleChecker):
             return
 
 
-@omni.asset_validator.core.registerRule("PhysicsDrivenJoints")
-@omni.asset_validator.core.register_requirements(DrivenJointsCapReq.DJ_003, override=True)
-class JointHasCorrectTransformAndState(omni.asset_validator.core.BaseRuleChecker):
+@omni.asset_validator.register_rule("PhysicsDrivenJoints")
+@omni.asset_validator.register_requirements(DrivenJointsCapReq.DJ_003, override=True)
+class JointHasCorrectTransformAndState(omni.asset_validator.BaseRuleChecker):
     """Validates that joint transforms and states are consistent with the connected bodies.
 
     This rule checks that the joint's transform and state values correctly define the
@@ -486,9 +497,9 @@ class JointHasCorrectTransformAndState(omni.asset_validator.core.BaseRuleChecker
                 )
 
 
-@omni.asset_validator.core.registerRule("PhysicsDrivenJoints")
-@omni.asset_validator.core.register_requirements(DrivenJointsCapReq.DJ_004, override=True)
-class PhysicsJointHasDriveOrMimicAPI(omni.asset_validator.core.BaseRuleChecker):
+@omni.asset_validator.register_rule("PhysicsDrivenJoints")
+@omni.asset_validator.register_requirements(DrivenJointsCapReq.DJ_004, override=True)
+class PhysicsJointHasDriveOrMimicAPI(omni.asset_validator.BaseRuleChecker):
     """Validates that joints have a drive or mimic API.
 
     This rule ensures that all joints (except fixed joints) have either a drive API
@@ -502,6 +513,9 @@ class PhysicsJointHasDriveOrMimicAPI(omni.asset_validator.core.BaseRuleChecker):
         Args:
             prim: The USD prim to validate.
         """
+        if PhysxSchema is None:
+            self._AddError("PhysxSchema is not available in this environment; cannot check drive or mimic API")
+            return
         if not UsdPhysics.Joint(prim) or UsdPhysics.FixedJoint(prim):
             return
         drives, joint_states = GetJointDrivesAndJointStates(prim)
@@ -526,9 +540,9 @@ class PhysicsJointHasDriveOrMimicAPI(omni.asset_validator.core.BaseRuleChecker):
                     )
 
 
-@omni.asset_validator.core.registerRule("PhysicsDrivenJoints")
-@omni.asset_validator.core.register_requirements(DrivenJointsCapReq.DJ_005, override=True)
-class PhysicsJointMaxVelocity(omni.asset_validator.core.BaseRuleChecker):
+@omni.asset_validator.register_rule("PhysicsDrivenJoints")
+@omni.asset_validator.register_requirements(DrivenJointsCapReq.DJ_005, override=True)
+class PhysicsJointMaxVelocity(omni.asset_validator.BaseRuleChecker):
     """Validates that joints have a positive max velocity set.
 
     This rule checks that joints with the PhysxJointAPI have a defined and positive
@@ -541,6 +555,9 @@ class PhysicsJointMaxVelocity(omni.asset_validator.core.BaseRuleChecker):
         Args:
             prim: The USD prim to validate.
         """
+        if PhysxSchema is None:
+            self._AddError("PhysxSchema is not available in this environment; cannot check max joint velocity")
+            return
         if prim.HasAPI(PhysxSchema.PhysxJointAPI):
             joint = PhysxSchema.PhysxJointAPI(prim)
             attr = joint.GetMaxJointVelocityAttr()
@@ -560,9 +577,9 @@ class PhysicsJointMaxVelocity(omni.asset_validator.core.BaseRuleChecker):
                     )
 
 
-@omni.asset_validator.core.registerRule("PhysicsDrivenJoints")
-@omni.asset_validator.core.register_requirements(DrivenJointsCapReq.DJ_006, override=True)
-class DriveJointValueReasonable(omni.asset_validator.core.BaseRuleChecker):
+@omni.asset_validator.register_rule("PhysicsDrivenJoints")
+@omni.asset_validator.register_requirements(DrivenJointsCapReq.DJ_006, override=True)
+class DriveJointValueReasonable(omni.asset_validator.BaseRuleChecker):
     """Validates that joint drive stiffness values are within reasonable ranges.
 
     This rule checks that joint drive stiffness values are within defined minimum and
@@ -617,9 +634,9 @@ class DriveJointValueReasonable(omni.asset_validator.core.BaseRuleChecker):
             # TODO: Work in progress for natural frequency
 
 
-@omni.asset_validator.core.registerRule("PhysicsDrivenJoints")
-@omni.asset_validator.core.register_requirements(DrivenJointsCapReq.DJ_007, override=True)
-class MimicAPICheck(omni.asset_validator.core.BaseRuleChecker):
+@omni.asset_validator.register_rule("PhysicsDrivenJoints")
+@omni.asset_validator.register_requirements(DrivenJointsCapReq.DJ_007, override=True)
+class MimicAPICheck(omni.asset_validator.BaseRuleChecker):
     """Validates proper configuration of mimic joint APIs.
 
     This rule checks that mimic joints have proper reference joints, gear ratios,
@@ -632,6 +649,9 @@ class MimicAPICheck(omni.asset_validator.core.BaseRuleChecker):
         Args:
             prim: The USD prim to validate.
         """
+        if PhysxSchema is None:
+            self._AddError("PhysxSchema is not available in this environment; cannot check mimic joint API")
+            return
         if not prim.HasAPI(PhysxSchema.PhysxMimicJointAPI):
             return
         else:
@@ -761,7 +781,6 @@ class MimicAPICheck(omni.asset_validator.core.BaseRuleChecker):
                 # We want:
                 # - reference_lower * gear_ratio < self_upper
                 # - self_lower < reference_upper * gear_ratio
-
                 if gear_ratio < 0:
                     if not reference_joint_lower_limit * gear_ratio > self_joint_lower_limit:
                         self._AddFailedCheck(
@@ -792,9 +811,9 @@ class MimicAPICheck(omni.asset_validator.core.BaseRuleChecker):
                         )
 
 
-@omni.asset_validator.core.registerRule("PhysicsDrivenJoints")
-@omni.asset_validator.core.register_requirements(DrivenJointsCapReq.DJ_008, override=True)
-class JointsExist(omni.asset_validator.core.BaseRuleChecker):
+@omni.asset_validator.register_rule("PhysicsDrivenJoints")
+@omni.asset_validator.register_requirements(DrivenJointsCapReq.DJ_008, override=True)
+class JointsExist(omni.asset_validator.BaseRuleChecker):
     """Validates that robot assets contain at least one joint.
 
     This rule checks that robot assets have at least one prim with the JointAPI
@@ -815,9 +834,9 @@ class JointsExist(omni.asset_validator.core.BaseRuleChecker):
         )
 
 
-@omni.asset_validator.core.registerRule("PhysicsDrivenJoints")
-@omni.asset_validator.core.register_requirements(DrivenJointsCapReq.DJ_009, override=True)
-class LinksExist(omni.asset_validator.core.BaseRuleChecker):
+@omni.asset_validator.register_rule("PhysicsDrivenJoints")
+@omni.asset_validator.register_requirements(DrivenJointsCapReq.DJ_009, override=True)
+class LinksExist(omni.asset_validator.BaseRuleChecker):
     """Validates that robot assets contain at least one link.
 
     This rule checks that robot assets have at least one prim with the LinkAPI
@@ -854,17 +873,20 @@ def is_relationship_prepended(relationship: Usd.Relationship) -> bool:
     return False
 
 
-@omni.asset_validator.core.registerRule("PhysicsDrivenJoints")
-@omni.asset_validator.core.register_requirements(DrivenJointsCapReq.DJ_010, override=True)
-class CheckRobotRelationships(omni.asset_validator.core.BaseRuleChecker):
+@omni.asset_validator.register_rule("PhysicsDrivenJoints")
+@omni.asset_validator.register_requirements(DrivenJointsCapReq.DJ_010, override=True)
+class CheckRobotRelationships(omni.asset_validator.BaseRuleChecker):
     """Validates that robot relationships are properly defined and prepended.
 
     This rule checks that robot assets have the required robotLinks and robotJoints
     relationships defined and that they are prepended for proper composition.
     """
 
-    # JW: lazy load the schema as we dont have it and its breaking workspace
-    from usd.schema.isaac import robot_schema
+    try:
+        # JW: lazy load the schema as we dont have it and its breaking workspace
+        from usd.schema.isaac import robot_schema
+    except ImportError:
+        robot_schema = None
 
     @classmethod
     def create_link_relationship(cls, stage, prim):
@@ -937,7 +959,7 @@ class CheckRobotRelationships(omni.asset_validator.core.BaseRuleChecker):
                         requirement=DrivenJointsCapReq.DJ_010,
                         message=f"DefaultPrim in robot asset <{stage.GetRootLayer().realPath}> does not have a {relationship_name} relationship",
                         at=prim,
-                        suggestion=omni.asset_validator.core.Suggestion(
+                        suggestion=omni.asset_validator.Suggestion(
                             message="Create relationship", callable=fix_method, at=AuthoringLayers(prim)
                         ),
                     )
@@ -950,15 +972,15 @@ class CheckRobotRelationships(omni.asset_validator.core.BaseRuleChecker):
                         requirement=DrivenJointsCapReq.DJ_010,
                         message=f"Relationship {relationship_name} is not prepended",
                         at=prim,
-                        suggestion=omni.asset_validator.core.Suggestion(
+                        suggestion=omni.asset_validator.Suggestion(
                             message="Make relationship prepended", callable=make_method
                         ),
                     )
 
 
-@omni.asset_validator.core.registerRule("PhysicsDrivenJoints")
-@omni.asset_validator.core.register_requirements(DrivenJointsCapReq.DJ_011, override=True)
-class ArticulationNoLoopsOrMultiJoint(omni.asset_validator.core.BaseRuleChecker):
+@omni.asset_validator.register_rule("PhysicsDrivenJoints")
+@omni.asset_validator.register_requirements(DrivenJointsCapReq.DJ_011, override=True)
+class ArticulationNoLoopsOrMultiJoint(omni.asset_validator.BaseRuleChecker):
     """Validates that the articulation has no loops and at most one joint between any two bodies.
 
     Only joints that participate in the articulation (excludeFromArticulation is not true)

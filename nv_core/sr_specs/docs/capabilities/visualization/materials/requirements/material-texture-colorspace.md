@@ -44,13 +44,6 @@ def Material "ValidMaterial"
         normal3f inputs:normal.connect = </ValidMaterial/normalTexture.outputs:rgb>
     }
     
-    def Shader "diffuseTexture"
-    {
-        uniform token info:id = "UsdUVTexture"
-        asset inputs:file = @textures/basecolor.png@
-        token inputs:sourceColorSpace = "sRGB"  # Base color in sRGB
-        float2 inputs:st.connect = </ValidMaterial/PrimvarReader_st.outputs:result>
-    }
     
     def Shader "metallicTexture"
     {

@@ -1,7 +1,25 @@
 # Feature: `ID:006 - Materials - Base`
 
+| **Property**            | **Value**         |
+|-------------------------|-------------------|
+|Internal ID              | `FET006_BASE_USDPREVIEW`|
+
 ## Description
 The Materials Feature provides support for material definitions in USD assets, enabling consistent material appearance across different rendering engines and viewers. This feature supports both standard USD Preview Surface materials and advanced Material Definition Language (MDL) materials for different use cases and rendering workflows.
+
+## Dependency Graph
+
+This feature has no dependencies and no other features depend on it directly.
+
+## Use Cases
+
+Products that consume this feature:
+
+- MetroSim
+- AI Factory
+- IsaacSim
+- MEGA
+- Lightwheel SOW1
 
 ## USDPreviewSurface Format
 
@@ -9,17 +27,13 @@ The Materials Feature provides support for material definitions in USD assets, e
 <details>
 <summary><strong>Details</strong></summary>
 
-| **Property**            | **Value**         |
-|-------------------------|-------------------|
-|Internal ID              | `FET006_BASE_USDPREVIEW`|
-
 #### Used in Profiles
 
 This version is used in the following profiles:
 
 - **[Prop Robotics Neutral Profile](../profiles/prop-robotics-neutral.md)** (v0.1.0) - Used as the base material feature for USDPreviewSurface materials
 
-#### Requirements 
+#### Requirements
 
 * Capability: [Visualization/Materials](../capabilities/visualization/materials/capability-materials.md)
     * Requirements
@@ -32,7 +46,7 @@ This version is used in the following profiles:
 
 
 * Material Paths:
-    * all relative, exist. 
+    * all relative, exist.
 
 Material binding on _all_ meshes, that aren't 'type=guides'.
 
@@ -80,7 +94,7 @@ Source file type:
 #### Used in Profiles
 
 * Material Paths:
-    * all relative, exist. 
+    * all relative, exist.
 * MDL Paths
     * all relative, exist.
 * MDL Compiles?

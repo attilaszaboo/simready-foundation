@@ -87,6 +87,10 @@ Each layer references the one below it, so any failure traces to the exact USD
 property at fault — and new layers extend the spec without breaking existing
 profiles.
 
+To understand how new capabilities, features, and profiles move from an idea to
+an accepted part of the specification, see the
+[SimReady Acceptance Workflow](acceptance_workflow.md).
+
 ### Problems SimReady Foundation solves
 
 

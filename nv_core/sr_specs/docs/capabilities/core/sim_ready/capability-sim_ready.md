@@ -1,17 +1,17 @@
-# Naming and Paths
+# SimReady
 
-**Capability:** Naming and Paths (NP)
+**Capability:** SimReady (SR)
 
-```{include} /capabilities/_includes/badges/naming_paths.md
+```{include} /capabilities/_includes/badges/sim_ready.md
 ```
 
 ## Overview
 
-Ensure compatibility with minimum requirements for a functioning simready asset
+Ensure compatibility with minimum requirements for a functioning SimReady asset.
 
 ## Summary
 
-This capability establishes standardized naming conventions and path structures for USD assets, ensuring consistency across different environments and platforms. 
+This capability captures SimReady-specific requirements that are not universal OpenUSD requirements but are needed for SimReady asset discovery, provenance, and package consumption workflows.
 
 ## Requirements
 
@@ -21,6 +21,7 @@ This capability establishes standardized naming conventions and path structures 
 
 requirements
 requirements/metadata-whitelist
+requirements/thumbnail-exist
 ```
 
-<!-- NAMING_PATHS_REQUIREMENTS_LIST_END -->
+<!-- SIM_READY_REQUIREMENTS_LIST_END -->

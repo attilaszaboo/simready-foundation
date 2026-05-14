@@ -49,8 +49,10 @@ from omni.cip.configurable.feature_adapter import feature_adapter
 from pxr import Kind, Sdf, Usd
 
 # Import from local asset transformer package
+# Import from local asset transformer package
 from .asset.transformer import AssetStructureManager, RuleProfile
 
+# Rule registration
 # Rule registration
 from .asset.transformer.manager import RuleRegistry
 from .asset.transformer.organizer.rules.flatten import FlattenRule
@@ -134,7 +136,6 @@ def modify_stage(input_stage: Usd.Stage, output_stage: Usd.Stage):
 
     # Save input stage to a temporary file for the manager
     with tempfile.TemporaryDirectory() as temp_dir:
-
         temp_input_path = os.path.join(temp_dir, "input_stage.usda")
         input_stage.GetRootLayer().Export(temp_input_path)
 

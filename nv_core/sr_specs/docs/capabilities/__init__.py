@@ -13,7 +13,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 from dataclasses import dataclass
-from typing import Optional, Tuple
+from typing import Any, Optional, Tuple
 
 
 @dataclass(frozen=True)
@@ -26,6 +26,9 @@ class Requirement:
         path: Relative path in documentation
         compatibility: Compatibility of the requirement
         tags: Tags of the requirement
+        version: Version of the requirement
+        parameters: Parameters of the requirement
+        examples: Examples of the requirement
     """
 
     code: str
@@ -34,6 +37,9 @@ class Requirement:
     path: Optional[str] = None
     compatibility: Optional[str] = None
     tags: Tuple[str, ...] = ()
+    version: Optional[str] = "0.1.0"
+    parameters: Tuple[Any, ...] = ()
+    examples: Tuple[Any, ...] = ()
 
 
 from .core.atomic_asset import validation
@@ -48,6 +54,9 @@ from .isaac_sim.composition import validation
 from .isaac_sim.robot_core import validation
 from .isaac_sim.robot_materials import validation
 from .nonvisual_sensors.nonvisual_materials import validation
+from .packaging.packaging_core import validation
+from .packaging.conformance_metadata import validation
+from .packaging.packaging_introspection import validation
 from .physics_bodies.base_articulation import validation
 from .physics_bodies.physics_colliders import validation
 from .physics_bodies.physics_driven_joints import validation

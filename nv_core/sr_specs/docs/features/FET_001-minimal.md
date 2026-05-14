@@ -1,20 +1,36 @@
 # Feature: `ID:001 - Minimal - Base`
 
+| **Property**            | **Value**         |
+|-------------------------|-------------------|
+|Internal ID              | `FET001_BASE_NEUTRAL`|
+
 ## Description
 
 The minimal placeable visual feature comprises a list of requirements that enable the digital representation of a real world object to be visualized in a broad range of applications.
 
 It additionally provides a list of requirements to ensure that the scale, units and placement of the object may be correctly represented, so that the object can be placed and aggregated with other objects in a scene.
 
+## Dependency Graph
+
+This feature has no dependencies and no other features depend on it directly.
+
+## Use Cases
+
+Products that consume this feature:
+
+- NDAS SDG / Stargate
+- MetroSim
+- AI Factory
+- AV Sim
+- IsaacSim
+- MEGA
+- Lightwheel SOW1
+
 ## Neutral Format
 
 ### Version 0.1.0
 <details>
 <summary><strong>Details</strong></summary>
-
-| **Property**            | **Value**         |
-|-------------------------|-------------------|
-|Internal ID              | `FET001_BASE_NEUTRAL`|
 
 #### Used in Profiles
 
@@ -23,7 +39,7 @@ This version is used in the following profiles:
 - **[Prop Robotics Neutral Profile](../profiles/prop-robotics-neutral.md)** (v0.1.0) - Used as the base editor support feature
 - **[Prop Robotics Physx Profile](../profiles/prop-robotics-physx.md)** (v0.1.0) - Used as the base editor support feature with PhysX-aware tools
 
-#### Requirements 
+#### Requirements
 * Capability: [Core/Atomic_Asset](../capabilities/core/atomic_asset/capability-atomic_asset.md)
     * Requirements
         * [Anchored-Asset-Paths](../capabilities/core/atomic_asset/requirements/anchored-asset-paths.md)
@@ -57,7 +73,7 @@ This version is used in the following profiles:
             * HI.004 | Version 0.0.0
             * Description
                 * Requirement that the current Usd Stage has a defaultPrim.  Believe that this will help limit amount of errors for when we talk about assembly type features.
-            * [Rule | Implementation](../capabilities/hierarchy/validation.py) 
+            * [Rule | Implementation](../capabilities/hierarchy/validation.py)
 
 
 #### Pipelines Supported for this Feature
@@ -94,7 +110,7 @@ Source file type:
 <details>
 <summary><strong>Details</strong></summary>
 
-#### Requirements 
+#### Requirements
 * Capability: [Core/Atomic_Asset](../capabilities/core/atomic_asset/capability-atomic_asset.md)
     * Requirements
         * [Anchored-Asset-Paths](../capabilities/core/atomic_asset/requirements/anchored-asset-paths.md)
@@ -147,17 +163,17 @@ Source file type:
 
 * Capability: [Hierarchy](../capabilities/hierarchy/hierarchy.md)
     * Requirements
-        * [Single-root-prim](../capabilities/hierarchy/requirements/hierarchy-has-root.md)  
+        * [Single-root-prim](../capabilities/hierarchy/requirements/hierarchy-has-root.md)
           * HI.001 - There shall be a single root prim as a common parent for assets' hierarchy.
-          * [Rule | Implementation](../capabilities/hierarchy/validation.py) 
+          * [Rule | Implementation](../capabilities/hierarchy/validation.py)
         * [Stage-Has-Default-Prim](../capabilities/hierarchy/requirements/stage-has-default-prim.md)
           * HI.004 | Version 0.0.0
           * Description
               * Requirement that the current Usd Stage has a defaultPrim.  Believe that this will help limit amount of errors for when we talk about assembly type features.
-          * [Rule | Implementation](../capabilities/hierarchy/validation.py) 
-        * [Root-is-xformable](../capabilities/hierarchy/requirements/root-is-xformable.md)  
+          * [Rule | Implementation](../capabilities/hierarchy/validation.py)
+        * [Root-is-xformable](../capabilities/hierarchy/requirements/root-is-xformable.md)
           * HI.003 - The root prim of an individual, placeable asset file shall be an Xformable (i.e., a prim that inherits UsdGeomXformable, such as Xform). This allows the entire asset to be easily transformed when instanced into a larger scene.
-          * [Rule | Implementation](../capabilities/hierarchy/validation.py) 
+          * [Rule | Implementation](../capabilities/hierarchy/validation.py)
 
 
 
@@ -208,7 +224,7 @@ segments = "S0,S1,S2,S3,S4,S5"
 1. **Generate test batch** for specific assets (Manual mode):
    ```bash
    cd nv_core/testing_tools/testing_framework/source
-   
+
    # Test a specific asset
    python batch_maker/batch_maker.py \
      --project_root "C:\path\to\simready_foundation" \

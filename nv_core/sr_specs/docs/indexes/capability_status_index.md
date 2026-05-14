@@ -68,6 +68,16 @@ This Document tracks the status of each capability.
 - ✅ **DCC Export (native)** (40 points)
 - ✅ **USD Exchange SDK Support** (5 points)
 
+(capability-package-structure)=
+### **Package Structure** (10 points) ![Status](https://img.shields.io/badge/Status-Draft-red)
+- ✅ **List of Requirements** (10 points)
+(capability-conformance-metadata)=
+### **Conformance Metadata** (10 points) ![Status](https://img.shields.io/badge/Status-Draft-red)
+- ✅ **List of Requirements** (10 points)
+(capability-bill-of-materials)=
+### **Bill of Materials** (10 points) ![Status](https://img.shields.io/badge/Status-Draft-red)
+- ✅ **List of Requirements** (10 points)
+
 ## Legend
 
 The following criteria are used to calculate the capability status:

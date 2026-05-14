@@ -17,7 +17,7 @@ from collections import defaultdict
 from collections.abc import Generator, Iterator
 from dataclasses import dataclass, field
 
-import omni.asset_validator.core
+import omni.asset_validator
 import omni.capabilities as cap
 from pxr import Gf, Usd, UsdGeom, Vt
 
@@ -244,13 +244,14 @@ def check_manifold_elements(num_vertices: int, indices: Vt.IntArray, face_sizes:
     return num_nonmanifold_vertices, num_nonmanifold_edges, winding_consistent
 
 
-@omni.asset_validator.core.registerRule("Geometry")
-@omni.asset_validator.core.register_requirements(cap.GeometryRequirements.VG_001, override=True)
-class ImageableGeometryChecker(omni.asset_validator.core.BaseRuleChecker):
+@omni.asset_validator.register_rule("Geometry")
+@omni.asset_validator.register_requirements(cap.GeometryRequirements.VG_001, override=True)
+class ImageableGeometryChecker(omni.asset_validator.BaseRuleChecker):
     def CheckStage(self, stage: Usd.Stage) -> None:
         default_prim = stage.GetDefaultPrim()
         if not default_prim:
             self._AddFailedCheck("Stage has no default prim. Unable to validate.", at=stage)
+            print("Stage has no default prim. Unable to validate.")
             return
         for prim in Usd.PrimRange(default_prim):
             if UsdGeom.Imageable(prim):
@@ -262,9 +263,9 @@ class ImageableGeometryChecker(omni.asset_validator.core.BaseRuleChecker):
         )
 
 
-@omni.asset_validator.core.registerRule("Geometry")
-@omni.asset_validator.core.register_requirements(cap.GeometryRequirements.VG_002, override=True)
-class UsdGeomExtentChecker(omni.asset_validator.core.BaseRuleChecker):
+@omni.asset_validator.register_rule("Geometry")
+@omni.asset_validator.register_requirements(cap.GeometryRequirements.VG_002, override=True)
+class UsdGeomExtentChecker(omni.asset_validator.BaseRuleChecker):
     """Validates that boundable geometry has valid extent values"""
 
     def CheckPrim(self, prim: Usd.Prim) -> None:
@@ -295,9 +296,9 @@ class UsdGeomExtentChecker(omni.asset_validator.core.BaseRuleChecker):
                     )
 
 
-@omni.asset_validator.core.registerRule("Geometry")
-@omni.asset_validator.core.register_requirements(cap.GeometryRequirements.VG_007, override=True)
-class ManifoldChecker(omni.asset_validator.core.BaseRuleChecker):
+@omni.asset_validator.register_rule("Geometry")
+@omni.asset_validator.register_requirements(cap.GeometryRequirements.VG_007, override=True)
+class ManifoldChecker(omni.asset_validator.BaseRuleChecker):
     """
     Counts the number of non-manifold edges and vertices. A non-manifold edge has more than two adjacent faces. A
     non-manifold vertex as more than two adjacent border edges, where a border edge is an edge with only one adjacent
@@ -361,9 +362,9 @@ class ManifoldChecker(omni.asset_validator.core.BaseRuleChecker):
             self._validate_mesh(mesh)
 
 
-# @omni.asset_validator.core.registerRule("Geometry")
-# @omni.asset_validator.core.register_requirements(cap.GeometryRequirements.VG_012, override=True)
-# class UsdGeomMeshSmallChecker(omni.asset_validator.core.BaseRuleChecker):
+# @omni.asset_validator.register_rule("Geometry")
+# @omni.asset_validator.register_requirements(cap.GeometryRequirements.VG_012, override=True)
+# class UsdGeomMeshSmallChecker(omni.asset_validator.BaseRuleChecker):
 #     mesh_extent_threshold = 0.002
 #     SMALL_USDMESH_REQUIREMENT = cap.GeometryRequirements.VG_012
 
@@ -396,9 +397,9 @@ class ManifoldChecker(omni.asset_validator.core.BaseRuleChecker):
 #                 "More than one small UsdGeomMesh found.", at=stage, requirement=self.SMALL_USDMESH_REQUIREMENT)
 
 
-@omni.asset_validator.core.registerRule("Geometry")
-@omni.asset_validator.core.register_requirements(cap.GeometryRequirements.VG_023, override=True)
-class MeshXformPositioningChecker(omni.asset_validator.core.BaseRuleChecker):
+@omni.asset_validator.register_rule("Geometry")
+@omni.asset_validator.register_requirements(cap.GeometryRequirements.VG_023, override=True)
+class MeshXformPositioningChecker(omni.asset_validator.BaseRuleChecker):
     """Validates that meshes use xform ops instead of baked transformations"""
 
     def CheckPrim(self, prim: Usd.Prim) -> None:
@@ -437,9 +438,9 @@ class MeshXformPositioningChecker(omni.asset_validator.core.BaseRuleChecker):
             )
 
 
-@omni.asset_validator.core.registerRule("Geometry")
-@omni.asset_validator.core.register_requirements(cap.GeometryRequirements.VG_025, override=True)
-class AssetOriginPositioningChecker(omni.asset_validator.core.BaseRuleChecker):
+@omni.asset_validator.register_rule("Geometry")
+@omni.asset_validator.register_requirements(cap.GeometryRequirements.VG_025, override=True)
+class AssetOriginPositioningChecker(omni.asset_validator.BaseRuleChecker):
     """
     Validates that assets are positioned at origin.
 
@@ -517,9 +518,9 @@ class AssetOriginPositioningChecker(omni.asset_validator.core.BaseRuleChecker):
                     )
 
 
-@omni.asset_validator.core.registerRule("Geometry")
-@omni.asset_validator.core.register_requirements(cap.GeometryRequirements.VG_026, override=True)
-class AssetPivotPlacementChecker(omni.asset_validator.core.BaseRuleChecker):
+@omni.asset_validator.register_rule("Geometry")
+@omni.asset_validator.register_requirements(cap.GeometryRequirements.VG_026, override=True)
+class AssetPivotPlacementChecker(omni.asset_validator.BaseRuleChecker):
     """Validates appropriate pivot placement for assets"""
 
     def CheckStage(self, stage: Usd.Stage) -> None:
@@ -570,9 +571,9 @@ class AssetPivotPlacementChecker(omni.asset_validator.core.BaseRuleChecker):
             )
 
 
-@omni.asset_validator.core.registerRule("Geometry")
-@omni.asset_validator.core.register_requirements(cap.GeometryRequirements.VG_028, override=True)
-class NormalsShouldBeCorrectChecker(omni.asset_validator.core.BaseRuleChecker):
+@omni.asset_validator.register_rule("Geometry")
+@omni.asset_validator.register_requirements(cap.GeometryRequirements.VG_028, override=True)
+class NormalsShouldBeCorrectChecker(omni.asset_validator.BaseRuleChecker):
     """
     Check that all normals have unit length, and that there are no non-finite values.
     Also checks that the supplied number of normal values agrees with the interpolation.
@@ -673,9 +674,9 @@ class NormalsShouldBeCorrectChecker(omni.asset_validator.core.BaseRuleChecker):
                 break
 
 
-@omni.asset_validator.core.registerRule("Geometry")
-@omni.asset_validator.core.register_requirements(cap.GeometryRequirements.VG_029, override=True)
-class NormalsWindingsChecker(omni.asset_validator.core.BaseRuleChecker):
+@omni.asset_validator.register_rule("Geometry")
+@omni.asset_validator.register_requirements(cap.GeometryRequirements.VG_029, override=True)
+class NormalsWindingsChecker(omni.asset_validator.BaseRuleChecker):
     """
     Check that the mesh has normals that are consistent with the face windings,
     taking into account the 'orientation' attribute.
@@ -733,9 +734,9 @@ class NormalsWindingsChecker(omni.asset_validator.core.BaseRuleChecker):
             )
 
 
-@omni.asset_validator.core.registerRule("Geometry")
-@omni.asset_validator.core.register_requirements(cap.GeometryRequirements.VG_014, override=True)
-class ValidateTopologyChecker(omni.asset_validator.core.BaseRuleChecker):
+@omni.asset_validator.register_rule("Geometry")
+@omni.asset_validator.register_requirements(cap.GeometryRequirements.VG_014, override=True)
+class ValidateTopologyChecker(omni.asset_validator.BaseRuleChecker):
     """
     Validate the topology of a mesh on all time samples.
     """
@@ -831,9 +832,9 @@ class ValidateTopologyChecker(omni.asset_validator.core.BaseRuleChecker):
             self.validate(mesh)
 
 
-@omni.asset_validator.core.registerRule("Geometry")
-@omni.asset_validator.core.register_requirements(cap.GeometryRequirements.VG_MESH_001, override=True)
-class GeomShallBeMeshChecker(omni.asset_validator.core.BaseRuleChecker):
+@omni.asset_validator.register_rule("Geometry")
+@omni.asset_validator.register_requirements(cap.GeometryRequirements.VG_MESH_001, override=True)
+class GeomShallBeMeshChecker(omni.asset_validator.BaseRuleChecker):
     """
     Validates that the stage contains at least one mesh.
     Warns if other geometry is also present.
@@ -893,9 +894,9 @@ class GeomShallBeMeshChecker(omni.asset_validator.core.BaseRuleChecker):
             )
 
 
-@omni.asset_validator.core.registerRule("Geometry")
-@omni.asset_validator.core.register_requirements(cap.GeometryRequirements.VG_027, override=True)
-class NormalsExistChecker(omni.asset_validator.core.BaseRuleChecker):
+@omni.asset_validator.register_rule("Geometry")
+@omni.asset_validator.register_requirements(cap.GeometryRequirements.VG_027, override=True)
+class NormalsExistChecker(omni.asset_validator.BaseRuleChecker):
     """
     Check that meshes have normals. All meshes should have normals
     unless they have the subdivision scheme set. Meshes cannot have

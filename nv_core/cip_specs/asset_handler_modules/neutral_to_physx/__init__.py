@@ -16,41 +16,60 @@ import os
 import sys
 
 from omni.cip.configurable.feature_adapter import feature_adapter
-from pxr import PhysxSchema, Usd, UsdGeom, UsdPhysics
+from pxr import Usd, UsdGeom, UsdPhysics
 
+try:
+    from pxr import PhysxSchema
+except ImportError:
+    PhysxSchema = None
 # Add the root directory to the Python path
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", ".."))
 
 
 @feature_adapter(
-    name="rigid_body_neutral_to_physx",
+    name="rigid_body_neutral_to_robot_physx",
+    input_feature_id="FET003_BASE_NEUTRAL",
+    input_feature_version="0.1.0",
+    output_feature_id="FET004_ROBOT_PHYSX",
+    output_feature_version="0.2.0",
+)
+def rigid_body_neutral_to_robot_physx(input_stage: Usd.Stage, output_stage: Usd.Stage):
+    _compute_extent(output_stage)
+
+
+@feature_adapter(
+    name="rigid_body_neutral_to_prop_physx",
     input_feature_id="FET003_BASE_NEUTRAL",
     input_feature_version="0.1.0",
     output_feature_id="FET003_BASE_PHYSX",
     output_feature_version="0.1.0",
 )
-def modify_stage(input_stage: Usd.Stage, output_stage: Usd.Stage):
-    # compute extent for all meshes
-    for prim in output_stage.Traverse():
-        if prim.IsA(UsdGeom.Mesh):
-            boundable = UsdGeom.Boundable(prim)
-            extent = UsdGeom.Boundable.ComputeExtentFromPlugins(boundable, Usd.TimeCode.Default())
-            boundable.GetExtentAttr().Set(extent)
+def rigid_body_neutral_to_prop_physx(input_stage: Usd.Stage, output_stage: Usd.Stage):
+    _compute_extent(output_stage)
 
 
 @feature_adapter(
-    name="collider_neutral_to_physx",
+    name="collider_neutral_to_prop_physx",
     input_feature_id="FET004_BASE_NEUTRAL",
     input_feature_version="0.1.0",
     output_feature_id="FET004_BASE_PHYSX",
     output_feature_version="0.1.0",
 )
-def modify_stage(input_stage: Usd.Stage, output_stage: Usd.Stage):
+def collider_neutral_to_prop_physx(input_stage: Usd.Stage, output_stage: Usd.Stage):
     # set collider approximation to SDF
     default_prim = output_stage.GetDefaultPrim()
     if default_prim:
         _set_collider_approximation_to_sdf(default_prim)
         output_stage.Save()
+
+
+def _compute_extent(stage: Usd.Stage):
+    # compute extent for all meshes
+    for prim in stage.Traverse():
+        if prim.IsA(UsdGeom.Mesh):
+            boundable = UsdGeom.Boundable(prim)
+            extent = UsdGeom.Boundable.ComputeExtentFromPlugins(boundable, Usd.TimeCode.Default())
+            boundable.GetExtentAttr().Set(extent)
 
 
 def _set_collider_approximation_to_sdf(prim: Usd.Prim):
@@ -74,6 +93,8 @@ def _set_collider_approximation_to_sdf(prim: Usd.Prim):
             approx_attr.Set("sdf")
             found_collider = True
         if found_collider:
+            if PhysxSchema is None:
+                raise RuntimeError("PhysxSchema is not available in this environment")
             child.ApplyAPI(PhysxSchema.PhysxCollisionAPI)
             child.ApplyAPI(PhysxSchema.PhysxSDFMeshCollisionAPI)
             child.ApplyAPI(UsdPhysics.MeshCollisionAPI)

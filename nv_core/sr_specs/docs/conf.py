@@ -35,6 +35,7 @@ extensions = [
     "sphinx_copybutton",
     "sphinx_design",
     "sphinx.ext.githubpages",
+    "sphinxcontrib.mermaid",
 ]
 
 # The internal repo_usd_profiles extension is only available via packman.
@@ -83,6 +84,7 @@ myst_substitutions = {
 }
 
 myst_heading_anchors = 3
+myst_fence_as_directive = ["mermaid"]
 
 # -- HTML output -------------------------------------------------------------
 

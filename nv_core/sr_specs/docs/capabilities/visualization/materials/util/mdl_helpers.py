@@ -13,44 +13,58 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from __future__ import annotations
+
+import logging
 from typing import Dict, Optional
 
-import carb
 import numpy  # used to represent Vectors, Matrices, and Colors
-from omni.mdl import neuraylib, pymdl, pymdlsdk
+
+try:
+    from omni.mdl import neuraylib, pymdl, pymdlsdk
+except ImportError:
+    neuraylib = None
+    pymdl = None
+    pymdlsdk = None
+
 from pxr import Gf, Sdf
+
+logger = logging.getLogger(__name__)
 
 # --------------------------------------------------------------------------------------------------
 # USD and misc utilities, from omni.mdl.usd_converter
 # --------------------------------------------------------------------------------------------------
 
-MdlIValueKindToUSD = {
-    pymdlsdk.IValue.Kind.VK_BOOL: Sdf.ValueTypeNames.Bool,
-    pymdlsdk.IValue.Kind.VK_INT: Sdf.ValueTypeNames.Int,
-    pymdlsdk.IValue.Kind.VK_ENUM: Sdf.ValueTypeNames.Int,
-    pymdlsdk.IValue.Kind.VK_FLOAT: Sdf.ValueTypeNames.Float,
-    pymdlsdk.IValue.Kind.VK_DOUBLE: Sdf.ValueTypeNames.Double,
-    pymdlsdk.IValue.Kind.VK_STRING: Sdf.ValueTypeNames.String,
-    pymdlsdk.IValue.Kind.VK_COLOR: Sdf.ValueTypeNames.Color3f,
-    pymdlsdk.IValue.Kind.VK_STRUCT: Sdf.ValueTypeNames.Token,
-    pymdlsdk.IValue.Kind.VK_TEXTURE: Sdf.ValueTypeNames.Asset,
-    pymdlsdk.IValue.Kind.VK_LIGHT_PROFILE: Sdf.ValueTypeNames.Asset,
-    pymdlsdk.IValue.Kind.VK_BSDF_MEASUREMENT: Sdf.ValueTypeNames.Asset,
-}
+MdlIValueKindToUSD = {}
+MdlITypeKindToUSD = {}
 
-MdlITypeKindToUSD = {
-    pymdlsdk.IType.Kind.TK_BOOL: Sdf.ValueTypeNames.Bool,
-    pymdlsdk.IType.Kind.TK_INT: Sdf.ValueTypeNames.Int,
-    pymdlsdk.IType.Kind.TK_ENUM: Sdf.ValueTypeNames.Int,
-    pymdlsdk.IType.Kind.TK_FLOAT: Sdf.ValueTypeNames.Float,
-    pymdlsdk.IType.Kind.TK_DOUBLE: Sdf.ValueTypeNames.Double,
-    pymdlsdk.IType.Kind.TK_STRING: Sdf.ValueTypeNames.String,
-    pymdlsdk.IType.Kind.TK_COLOR: Sdf.ValueTypeNames.Color3f,
-    pymdlsdk.IType.Kind.TK_STRUCT: Sdf.ValueTypeNames.Token,
-    pymdlsdk.IType.Kind.TK_TEXTURE: Sdf.ValueTypeNames.Asset,
-    pymdlsdk.IType.Kind.TK_LIGHT_PROFILE: Sdf.ValueTypeNames.Asset,
-    pymdlsdk.IType.Kind.TK_BSDF_MEASUREMENT: Sdf.ValueTypeNames.Asset,
-}
+if pymdlsdk is not None:
+    MdlIValueKindToUSD = {
+        pymdlsdk.IValue.Kind.VK_BOOL: Sdf.ValueTypeNames.Bool,
+        pymdlsdk.IValue.Kind.VK_INT: Sdf.ValueTypeNames.Int,
+        pymdlsdk.IValue.Kind.VK_ENUM: Sdf.ValueTypeNames.Int,
+        pymdlsdk.IValue.Kind.VK_FLOAT: Sdf.ValueTypeNames.Float,
+        pymdlsdk.IValue.Kind.VK_DOUBLE: Sdf.ValueTypeNames.Double,
+        pymdlsdk.IValue.Kind.VK_STRING: Sdf.ValueTypeNames.String,
+        pymdlsdk.IValue.Kind.VK_COLOR: Sdf.ValueTypeNames.Color3f,
+        pymdlsdk.IValue.Kind.VK_STRUCT: Sdf.ValueTypeNames.Token,
+        pymdlsdk.IValue.Kind.VK_TEXTURE: Sdf.ValueTypeNames.Asset,
+        pymdlsdk.IValue.Kind.VK_LIGHT_PROFILE: Sdf.ValueTypeNames.Asset,
+        pymdlsdk.IValue.Kind.VK_BSDF_MEASUREMENT: Sdf.ValueTypeNames.Asset,
+    }
+    MdlITypeKindToUSD = {
+        pymdlsdk.IType.Kind.TK_BOOL: Sdf.ValueTypeNames.Bool,
+        pymdlsdk.IType.Kind.TK_INT: Sdf.ValueTypeNames.Int,
+        pymdlsdk.IType.Kind.TK_ENUM: Sdf.ValueTypeNames.Int,
+        pymdlsdk.IType.Kind.TK_FLOAT: Sdf.ValueTypeNames.Float,
+        pymdlsdk.IType.Kind.TK_DOUBLE: Sdf.ValueTypeNames.Double,
+        pymdlsdk.IType.Kind.TK_STRING: Sdf.ValueTypeNames.String,
+        pymdlsdk.IType.Kind.TK_COLOR: Sdf.ValueTypeNames.Color3f,
+        pymdlsdk.IType.Kind.TK_STRUCT: Sdf.ValueTypeNames.Token,
+        pymdlsdk.IType.Kind.TK_TEXTURE: Sdf.ValueTypeNames.Asset,
+        pymdlsdk.IType.Kind.TK_LIGHT_PROFILE: Sdf.ValueTypeNames.Asset,
+        pymdlsdk.IType.Kind.TK_BSDF_MEASUREMENT: Sdf.ValueTypeNames.Asset,
+    }
 
 
 def python_vector_to_usd_type(dtype, size):
@@ -393,21 +407,28 @@ def mdl_type_to_usd_type(val: pymdl.ArgumentConstant):
     return None
 
 
+def is_mdl_helper_available() -> bool:
+    return neuraylib is not None
+
 def get_mdl_module_parameter_descs(module_name: str, function: str) -> Optional[Dict[str, Sdf.ValueTypeName]]:
     # acquire neuray instance from OV
+    if not is_mdl_helper_available():
+        return None
+
     ov_neuraylib = neuraylib.get_neuraylib()
     ov_neuraylib_handle = ov_neuraylib.getNeurayAPI()
+
     # feed the neuray instance into the python binding
     neuray: pymdlsdk.INeuray = pymdlsdk.attach_ineuray(ov_neuraylib_handle)
     if neuray.get_status() != pymdlsdk.INeuray.Status.STARTED:
-        carb.log_warn("Cannot attach to ov neuraylib")
+        logger.warning("Cannot attach to ov neuraylib")
         return None
 
     # we need to load modules to OV using the omni.mdl.neuraylib
     # on the c++ side this is async, here it is blocking!
     module = ov_neuraylib.createMdlModule(module_name)
     if not module.valid():
-        carb.log_warn(f"Failed creating shell for module {module_name}")
+        logger.warning(f"Failed creating shell for module {module_name}")
         return None
 
     # after the module is loaded we create a new transaction that can see the loaded module
@@ -419,12 +440,12 @@ def get_mdl_module_parameter_descs(module_name: str, function: str) -> Optional[
     try:
         module_desc = pymdl.Module._fetchFromDb(transaction, module.dbName)
         if not module_desc:
-            carb.log_warn(f"Failed fetching module {module_name}")
+            logger.warning(f"Failed fetching module {module_name}")
             return None
 
         func_def = module_desc.functions.get(function)
         if not func_def:
-            carb.log_warn(f"Cannot find {function} in {module_name}")
+            logger.warning(f"Cannot find {function} in {module_name}")
             return None
 
         # Materials are expected to have only one functions overload
@@ -437,7 +458,7 @@ def get_mdl_module_parameter_descs(module_name: str, function: str) -> Optional[
                     names_to_types[param_name] = mdl_type_to_usd_type(param_desc)
 
             except Exception as e:
-                carb.log_warn(f"Cannot parse {param_name}: {param_desc.type.kind} : {e}")
+                logger.warning(f"Cannot parse {param_name}: {param_desc.type.kind} : {e}")
 
     finally:
         ov_neuraylib.destroyMdlModule(module)

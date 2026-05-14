@@ -15,7 +15,7 @@
 
 from enum import Enum
 
-import omni.asset_validator.core
+import omni.asset_validator
 from pxr import Usd, UsdShade
 
 from ... import Requirement
@@ -54,9 +54,9 @@ class RobotMaterialsCapReqs(Requirement, Enum):
     )
 
 
-@omni.asset_validator.core.registerRule("RobotMaterials")
-@omni.asset_validator.core.register_requirements(RobotMaterialsCapReqs.RM_001, override=True)
-class NoNestedMaterialsChecker(omni.asset_validator.core.BaseRuleChecker):
+@omni.asset_validator.register_rule("RobotMaterials")
+@omni.asset_validator.register_requirements(RobotMaterialsCapReqs.RM_001, override=True)
+class NoNestedMaterialsChecker(omni.asset_validator.BaseRuleChecker):
     """Validates that materials don't contain nested materials.
 
     This rule checks that UsdShade.Material prims don't have child prims that are also
@@ -83,9 +83,9 @@ class NoNestedMaterialsChecker(omni.asset_validator.core.BaseRuleChecker):
                     )
 
 
-@omni.asset_validator.core.registerRule("RobotMaterials")
-@omni.asset_validator.core.register_requirements(RobotMaterialsCapReqs.RM_002, override=True)
-class MaterialsOnTopLevelOnlyChecker(omni.asset_validator.core.BaseRuleChecker):
+@omni.asset_validator.register_rule("RobotMaterials")
+@omni.asset_validator.register_requirements(RobotMaterialsCapReqs.RM_002, override=True)
+class MaterialsOnTopLevelOnlyChecker(omni.asset_validator.BaseRuleChecker):
     """Validates that materials are only defined in the top-level Looks prim.
 
     This rule checks that all UsdShade.Material prims are direct children of the

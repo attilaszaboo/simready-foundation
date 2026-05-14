@@ -24,7 +24,7 @@ Joint transforms and states must be properly configured to ensure correct kinema
 ```usd
 # Valid: Joint with correct transforms
 def PhysicsRevoluteJoint "finger_joint" (
-    prepend apiSchemas = ["PhysxJointAPI", "PhysicsDriveAPI:angular", "PhysxJointStateAPI:angular"]
+    prepend apiSchemas = ["PhysxJointAPI", "PhysicsDriveAPI:angular", "PhysicsJointStateAPI:angular"]
 )
 {
 
@@ -61,3 +61,4 @@ Checks performed (for Revolute and Prismatic joints only):
 
 * [OpenUSD Transform Documentation](https://openusd.org/dev/api/class_usd_geom_xformable.html)
 * [USD Physics Joint Relationships](https://openusd.org/dev/api/usd_physics_page_front.html#usdPhysics_joints)
+* [PhysxSchemaJointStateAPI Class Reference](https://docs.omniverse.nvidia.com/kit/docs/omni_usd_schema_physics/latest/physxschema/class_physx_schema_joint_state_a_p_i.html)

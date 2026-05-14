@@ -4,6 +4,10 @@
 
 Support for proper material organization in robot assets. This feature ensures that materials in robot assets are structured according to USD best practices, with materials centrally organized in the top-level Looks prim and without nested material hierarchies. These requirements align with the Isaac Sim asset validation rules for ensuring consistent and reliable material handling across different USD applications and renderers.
 
+## Dependency Graph
+
+This feature has no dependencies and no other features depend on it directly.
+
 ## Isaac Sim Format
 
 ### Version 0.1.0

@@ -28,7 +28,7 @@ try:
 except ImportError:
     omni_client = None
 
-import omni.asset_validator.core
+import omni.asset_validator
 import omni.capabilities as cap
 from pxr import Sdf, Usd
 
@@ -121,9 +121,9 @@ def is_absolute_path(path: str) -> bool:
     return False
 
 
-@omni.asset_validator.core.registerRule("NamingPaths")
-@omni.asset_validator.core.register_requirements(cap.NamingPathsRequirements.NP_001, override=True)
-class PrimNamingConventionChecker(omni.asset_validator.core.BaseRuleChecker):
+@omni.asset_validator.register_rule("NamingPaths")
+@omni.asset_validator.register_requirements(cap.NamingPathsRequirements.NP_001, override=True)
+class PrimNamingConventionChecker(omni.asset_validator.BaseRuleChecker):
     """Check NP.001: Prim naming convention compliance."""
 
     def CheckPrim(self, prim: Usd.Prim) -> None:
@@ -155,9 +155,9 @@ class PrimNamingConventionChecker(omni.asset_validator.core.BaseRuleChecker):
             )
 
 
-@omni.asset_validator.core.registerRule("NamingPaths")
-@omni.asset_validator.core.register_requirements(cap.NamingPathsRequirements.NP_002, override=True)
-class FileNamingConventionChecker(omni.asset_validator.core.BaseRuleChecker):
+@omni.asset_validator.register_rule("NamingPaths")
+@omni.asset_validator.register_requirements(cap.NamingPathsRequirements.NP_002, override=True)
+class FileNamingConventionChecker(omni.asset_validator.BaseRuleChecker):
     """Check NP.002: File naming convention compliance."""
 
     def CheckStage(self, stage: Usd.Stage) -> None:
@@ -203,9 +203,9 @@ class FileNamingConventionChecker(omni.asset_validator.core.BaseRuleChecker):
             )
 
 
-@omni.asset_validator.core.registerRule("NamingPaths")
-@omni.asset_validator.core.register_requirements(cap.NamingPathsRequirements.NP_003, override=True)
-class DirectoryStructureChecker(omni.asset_validator.core.BaseRuleChecker):
+@omni.asset_validator.register_rule("NamingPaths")
+@omni.asset_validator.register_requirements(cap.NamingPathsRequirements.NP_003, override=True)
+class DirectoryStructureChecker(omni.asset_validator.BaseRuleChecker):
     """Check NP.003: Directory structure compliance."""
 
     def CheckStage(self, stage: Usd.Stage) -> None:
@@ -215,13 +215,14 @@ class DirectoryStructureChecker(omni.asset_validator.core.BaseRuleChecker):
         if not stage_path:
             return
 
-        # Check directory structure
+        # Check directory structure (skip filesystem root e.g. "C:\" on Windows so we only validate folder names)
         dir_path = os.path.dirname(stage_path)
         if dir_path:
-            # Check for consistent directory naming
-            dirs = Path(current_dir).parts
+            path_obj = Path(dir_path)
+            root_anchor = path_obj.anchor  # e.g. "C:\" on Windows, "" or "/" on Posix
+            dirs = [p for p in path_obj.parts if p and p != root_anchor]
             for dir_name in dirs:
-                if dir_name and not VALID_FILE_NAME_PATTERN.match(dir_name):
+                if not VALID_FILE_NAME_PATTERN.match(dir_name):
                     self._AddFailedCheck(
                         requirement=cap.NamingPathsRequirements.NP_003,
                         message=f"Directory '{dir_name}' contains invalid characters.",
@@ -236,9 +237,9 @@ class DirectoryStructureChecker(omni.asset_validator.core.BaseRuleChecker):
                     )
 
 
-@omni.asset_validator.core.registerRule("NamingPaths")
-@omni.asset_validator.core.register_requirements(cap.NamingPathsRequirements.NP_004, override=True)
-class PathLengthLimitsChecker(omni.asset_validator.core.BaseRuleChecker):
+@omni.asset_validator.register_rule("NamingPaths")
+@omni.asset_validator.register_requirements(cap.NamingPathsRequirements.NP_004, override=True)
+class PathLengthLimitsChecker(omni.asset_validator.BaseRuleChecker):
     """Check NP.004: Path length limits compliance."""
 
     def CheckStage(self, stage: Usd.Stage) -> None:
@@ -267,9 +268,9 @@ class PathLengthLimitsChecker(omni.asset_validator.core.BaseRuleChecker):
             )
 
 
-@omni.asset_validator.core.registerRule("NamingPaths")
-@omni.asset_validator.core.register_requirements(cap.NamingPathsRequirements.NP_005, override=True)
-class AssetFolderStructureChecker(omni.asset_validator.core.BaseRuleChecker):
+@omni.asset_validator.register_rule("NamingPaths")
+@omni.asset_validator.register_requirements(cap.NamingPathsRequirements.NP_005, override=True)
+class AssetFolderStructureChecker(omni.asset_validator.BaseRuleChecker):
     """Check NP.005: Asset folder structure compliance."""
 
     def CheckStage(self, stage: Usd.Stage) -> None:
@@ -319,9 +320,9 @@ class AssetFolderStructureChecker(omni.asset_validator.core.BaseRuleChecker):
             )
 
 
-@omni.asset_validator.core.registerRule("NamingPaths")
-@omni.asset_validator.core.register_requirements(cap.NamingPathsRequirements.NP_006, override=True)
-class MetadataLocationChecker(omni.asset_validator.core.BaseRuleChecker):
+@omni.asset_validator.register_rule("NamingPaths")
+@omni.asset_validator.register_requirements(cap.NamingPathsRequirements.NP_006, override=True)
+class MetadataLocationChecker(omni.asset_validator.BaseRuleChecker):
     """Check NP.006: Metadata location compliance."""
 
     def CheckStage(self, stage: Usd.Stage) -> None:
@@ -378,9 +379,18 @@ class MetadataLocationChecker(omni.asset_validator.core.BaseRuleChecker):
             )
 
 
-@omni.asset_validator.core.registerRule("NamingPaths")
-@omni.asset_validator.core.register_requirements(cap.NamingPathsRequirements.NP_007, override=True)
-class RelativePathsChecker(omni.asset_validator.core.BaseRuleChecker):
+def _extract_all_references_or_payload_lists(reference_or_payload_list):
+    items = []
+    items.extend(reference_or_payload_list.explicitItems)
+    items.extend(reference_or_payload_list.prependedItems)
+    items.extend(reference_or_payload_list.addedItems)
+    items.extend(reference_or_payload_list.appendedItems)
+    return items
+
+
+@omni.asset_validator.register_rule("NamingPaths")
+@omni.asset_validator.register_requirements(cap.NamingPathsRequirements.NP_007, override=True)
+class RelativePathsChecker(omni.asset_validator.BaseRuleChecker):
     """Check NP.007: Relative paths compliance."""
 
     def CheckStage(self, stage: Usd.Stage) -> None:
@@ -395,36 +405,54 @@ class RelativePathsChecker(omni.asset_validator.core.BaseRuleChecker):
         if not current_dir:
             return
 
-        # Check all prims in the stage
+        # Check all prims in the stage (use prim stack + referenceList/payloadList; GetReferences() is not iterable in this USD build)
         for prim in stage.Traverse():
-            # Check references
-            for ref in prim.GetReferences():
-                ref_path = ref.GetAssetPath()
-                if is_absolute_path(ref_path):
-                    self._AddFailedCheck(
-                        requirement=cap.NamingPathsRequirements.NP_007,
-                        message=f"Prim '{prim.GetPath()}' has absolute path reference: '{ref_path}'. Use relative paths instead.",
-                        at=prim,
+            if prim.HasAuthoredReferences():
+                for primspec in prim.GetPrimStack():
+                    if not primspec or not primspec.referenceList:
+                        continue
+
+                    reference_prims_paths = _extract_all_references_or_payload_lists(
+                        primspec.referenceList
+                    )
+                    
+                    for item in reference_prims_paths:
+                        ref_path = item.assetPath
+                        if ref_path and is_absolute_path(ref_path):
+                            self._AddFailedCheck(
+                                requirement=cap.NamingPathsRequirements.NP_007,
+                                message=f"Prim '{prim.GetPath()}' has absolute path reference: '{ref_path}'. Use relative paths instead.",
+                                at=prim,
+                            )
+
+            if prim.HasAuthoredPayloads():
+                for primspec in prim.GetPrimStack():
+                    if not primspec or not primspec.payloadList:
+                        continue
+
+                    payload_prims_paths = _extract_all_references_or_payload_lists(
+                        primspec.payloadList
                     )
 
-            # Check payloads
-            for payload in prim.GetPayloads():
-                payload_path = payload.GetAssetPath()
-                if is_absolute_path(payload_path):
-                    self._AddFailedCheck(
-                        requirement=cap.NamingPathsRequirements.NP_007,
-                        message=f"Prim '{prim.GetPath()}' has absolute path payload: '{payload_path}'. Use relative paths instead.",
-                        at=prim,
-                    )
+                    for item in payload_prims_paths:
+                        payload_path = item.assetPath
+                        if payload_path and is_absolute_path(payload_path):
+                            self._AddFailedCheck(
+                                requirement=cap.NamingPathsRequirements.NP_007,
+                                message=f"Prim '{prim.GetPath()}' has absolute path payload: '{payload_path}'. Use relative paths instead.",
+                                at=prim,
+                            )
 
-            # Check subLayers
-            for sublayer in prim.GetMetadata("subLayers"):
-                if is_absolute_path(sublayer):
-                    self._AddFailedCheck(
-                        requirement=cap.NamingPathsRequirements.NP_007,
-                        message=f"Prim '{prim.GetPath()}' has absolute path subLayer: '{sublayer}'. Use relative paths instead.",
-                        at=prim,
-                    )
+            # Check subLayers (GetMetadata can return None if not authored)
+            sublayers = prim.GetMetadata("subLayers")
+            if sublayers is not None:
+                for sublayer in sublayers:
+                    if is_absolute_path(sublayer):
+                        self._AddFailedCheck(
+                            requirement=cap.NamingPathsRequirements.NP_007,
+                            message=f"Prim '{prim.GetPath()}' has absolute path subLayer: '{sublayer}'. Use relative paths instead.",
+                            at=prim,
+                        )
 
         # Check custom layer data for absolute paths
         root_layer = stage.GetRootLayer()
@@ -440,9 +468,9 @@ class RelativePathsChecker(omni.asset_validator.core.BaseRuleChecker):
                         )
 
 
-@omni.asset_validator.core.registerRule("NamingPaths")
-@omni.asset_validator.core.register_requirements(cap.NamingPathsRequirements.NP_008, override=True)
-class PathsExistChecker(omni.asset_validator.core.BaseRuleChecker):
+@omni.asset_validator.register_rule("NamingPaths")
+@omni.asset_validator.register_requirements(cap.NamingPathsRequirements.NP_008, override=True)
+class PathsExistChecker(omni.asset_validator.BaseRuleChecker):
     """
     Check NP.008: Verify all asset, reference and payload paths resolve to files that exist.
 
@@ -485,14 +513,10 @@ class PathsExistChecker(omni.asset_validator.core.BaseRuleChecker):
                     if not primspec or not primspec.referenceList:
                         continue
 
-                    items = (
-                        primspec.referenceList.explicitItems
-                        + primspec.referenceList.prependedItems
-                        + primspec.referenceList.addedItems
-                        + primspec.referenceList.appendedItems
+                    reference_prims_paths = _extract_all_references_or_payload_lists(
+                        primspec.referenceList
                     )
-
-                    for item in items:
+                    for item in reference_prims_paths:
                         if item.assetPath:
                             item_resolved_path = combine_paths(file_path(primspec.layer.identifier), item.assetPath)
                             if not file_exists(item_resolved_path):
@@ -508,14 +532,10 @@ class PathsExistChecker(omni.asset_validator.core.BaseRuleChecker):
                     if not primspec or not primspec.payloadList:
                         continue
 
-                    items = (
-                        primspec.payloadList.explicitItems
-                        + primspec.payloadList.prependedItems
-                        + primspec.payloadList.addedItems
-                        + primspec.payloadList.appendedItems
+                    payload_prims_paths = _extract_all_references_or_payload_lists(
+                        primspec.payloadList
                     )
-
-                    for item in items:
+                    for item in payload_prims_paths:
                         if item.assetPath:
                             item_resolved_path = combine_paths(file_path(primspec.layer.identifier), item.assetPath)
                             if not file_exists(item_resolved_path):

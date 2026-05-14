@@ -3,6 +3,10 @@
 
 Robot Core defines the robot metadata and asset structure requirements for use in Isaac Sim: folder layout, naming, thumbnails, physics and schema authoring, and robot schema and type.
 
+## Dependency Graph
+
+This feature has no dependencies and no other features depend on it directly.
+
 ## Runnable Format
 ### Version 0.2.0
 <details>
