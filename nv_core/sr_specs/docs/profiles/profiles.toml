@@ -3,7 +3,7 @@
     {"FET000_CORE" = {version = "0.1.0"}}, # "Core"
     {"FET001_BASE_NEUTRAL" = {version = "0.1.0"}}, # "Minimal"
     {"FET003_BASE_NEUTRAL" = {version = "0.1.0"}}, # "RBD Physics"
-    {"FET004_BASE_NEUTRAL" = {version = "0.1.0"}}, # "Simulate Multi-Body Physics"
+    {"FET004_BASE_NEUTRAL" = {version = "0.1.0"}}, # "Simulate Multi-Body Physics (This is an optional feature for this profile)"
     {"FET005_BASE_NEUTRAL" = {version = "0.1.0"}}, # "Simulate Grasp Physics"
     {"FET006_BASE_MDL" = {version = "0.1.0"}}, # "Matrials"
     
@@ -12,7 +12,7 @@
     {"FET000_CORE" = {version = "0.1.0"}}, # "Core"
     {"FET001_BASE_NEUTRAL" = {version = "1.0.0"}}, # "Minimal"
     {"FET003_BASE_NEUTRAL" = {version = "0.1.0"}}, # "RBD Physics"
-    {"FET004_BASE_NEUTRAL" = {version = "0.1.0"}}, # "Simulate Multi-Body Physics"
+    {"FET004_BASE_NEUTRAL" = {version = "0.1.0"}}, # "Simulate Multi-Body Physics (This is an optional feature for this profile)"
     {"FET005_BASE_NEUTRAL" = {version = "0.1.0"}}, # "Simulate Grasp Physics"
     {"FET006_BASE_MDL" = {version = "0.1.0"}}, # "Matrials"
 ]}
@@ -22,7 +22,7 @@
     {"FET000_CORE" = {version = "0.1.0"}}, # "Core"
     {"FET001_BASE_NEUTRAL" = {version = "0.1.0"}}, # "Minimal"
     {"FET003_BASE_PHYSX" = {version = "0.1.0"}}, # "RBD Physics"
-    {"FET004_BASE_PHYSX" = {version = "0.1.0"}}, # "Simulate Multi-Body Physics and SDF collision approximation"
+    {"FET004_BASE_PHYSX" = {version = "0.1.0"}}, # "Simulate Multi-Body Physics and SDF collision approximation (This is an optional feature for this profile)"
     {"FET005_BASE_NEUTRAL" = {version = "0.1.0"}}, # "Simulate Grasp Physics"
     {"FET006_BASE_MDL" = {version = "0.1.0"}}, # "Matrials"
 ]}
@@ -30,7 +30,7 @@
     {"FET000_CORE" = {version = "0.1.0"}}, # "Core"
     {"FET001_BASE_NEUTRAL" = {version = "1.0.0"}}, # "Minimal"
     {"FET003_BASE_PHYSX" = {version = "0.1.0"}}, # "RBD Physics"
-    {"FET004_BASE_PHYSX" = {version = "0.1.0"}}, # "Simulate Multi-Body Physics and SDF collision approximation"
+    {"FET004_BASE_PHYSX" = {version = "0.1.0"}}, # "Simulate Multi-Body Physics and SDF collision approximation (This is an optional feature for this profile)"
     {"FET005_BASE_NEUTRAL" = {version = "0.1.0"}}, # "Simulate Grasp Physics"
     {"FET006_BASE_MDL" = {version = "0.1.0"}}, # "Matrials"
 ]}
@@ -39,7 +39,7 @@
 "1.0.0" = {features = [
     {"FET001_BASE_NEUTRAL" = {version = "0.1.0"}}, # "Minimal"
     {"FET003_BASE_PHYSX" = {version = "0.1.0"}}, # "RBD Physics"
-    {"FET004_BASE_PHYSX" = {version = "0.1.0"}}, # "Simulate Multi-Body Physics and SDF collision approximation"
+    {"FET004_BASE_PHYSX" = {version = "0.1.0"}}, # "Simulate Multi-Body Physics"
     {"FET005_BASE_NEUTRAL" = {version = "0.1.0"}}, # "Simulate Grasp Physics"
     {"FET100_BASE_ISAACSIM" = {version = "0.1.0"}}, # "Isaac composition
 ]}

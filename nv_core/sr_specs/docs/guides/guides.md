@@ -11,7 +11,6 @@ SimReady Acceptance Workflow <acceptance_workflow>
 Features <features/features>
 Feature Adapters <feature_adapters/feature_adapters>
 Profiles <profiles/profiles>
-Runtime Testing <runtime_testing/runtime_testing>
 SimReady Learning Workflow <SimReady_learning_workflow>
 Naming Conventions <naming_conventions>
 ```

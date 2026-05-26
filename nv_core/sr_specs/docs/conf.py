@@ -13,6 +13,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 import logging
+import os
 from pathlib import Path
 
 _root = Path(__file__).resolve().parent
@@ -89,7 +90,9 @@ myst_fence_as_directive = ["mermaid"]
 # -- HTML output -------------------------------------------------------------
 
 html_theme = "nvidia_sphinx_theme"
-html_baseurl = "https://nvidia.github.io/simready-foundation/"
+html_baseurl = os.environ.get("DOCS_BASE_URL", "")
+
+_switcher_url = os.environ.get("DOCS_VERSIONS_JSON", "")
 
 html_theme_options = {
     "secondary_sidebar_items": ["page-toc"],
@@ -98,6 +101,18 @@ html_theme_options = {
     "pygments_dark_style": "monokai",
     "navigation_depth": 2,
 }
+
+if _switcher_url:
+    html_theme_options["check_switcher"] = False
+    html_theme_options["switcher"] = {
+        "json_url": _switcher_url,
+        "version_match": version,
+    }
+    html_theme_options["navbar_end"] = [
+        "version-switcher",
+        "theme-switcher",
+        "navbar-icon-links",
+    ]
 
 html_title = f"{project} v{version}"
 

@@ -41,7 +41,13 @@ The `Prop-Robotics-Neutral` profile includes the following feature sets (see `pr
 - Apply `PhysicsCollisionAPI` to collision-enabled prims.
 - Rigid body prims must be `UsdGeomXformable`.
 
-### Multi-body joints (required)
+### Multi-body physics (conditional)
+
+Single-rigid-body props are valid for this profile when they satisfy
+`FET003_BASE_NEUTRAL`. `FET004_BASE_NEUTRAL` applies only to props intentionally
+authored as multi-body assemblies, with two or more rigid bodies connected by
+joints or articulation relationships. For props with exactly one rigid body,
+multi-body physics is not applicable and must not block profile conformance.
 
 - Use `UsdPhysicsJoint` prims (or subtypes) to connect rigid bodies.
 - Author `rel physics:body0` and `rel physics:body1` relationships.

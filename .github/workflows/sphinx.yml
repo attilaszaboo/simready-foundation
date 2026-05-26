@@ -5,17 +5,24 @@ on:
     branches: [main]
     tags: ["v*"]
   workflow_dispatch:
+    inputs:
+      version_tag:
+        description: "Git tag to build docs from (e.g. v0.2.0). Leave blank to build from HEAD."
+        required: false
+        type: string
 
 permissions:
   contents: write
+  pages: read
 
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout
+      - name: Checkout source
         uses: actions/checkout@v4
         with:
+          ref: ${{ inputs.version_tag || github.ref }}
           submodules: recursive
           lfs: true
 
@@ -29,19 +36,129 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements-docs.txt
 
+      - name: Determine version
+        id: version
+        run: |
+          TAG_INPUT="${{ inputs.version_tag }}"
+          if [[ -n "$TAG_INPUT" ]]; then
+            VER="${TAG_INPUT#v}"
+          elif [[ "$GITHUB_REF" == refs/tags/v* ]]; then
+            VER="${GITHUB_REF#refs/tags/v}"
+          else
+            VER="$(cat VERSION.md | tr -d '[:space:]')"
+          fi
+          echo "ver=$VER" >> "$GITHUB_OUTPUT"
+
+          # Only update /latest/ on pushes to main (not tag or manual builds)
+          if [[ "$GITHUB_REF" == refs/heads/main && -z "$TAG_INPUT" ]]; then
+            echo "update_latest=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "update_latest=false" >> "$GITHUB_OUTPUT"
+          fi
+          echo "Building docs version: $VER"
+
+      - name: Get Pages URL
+        id: pages
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          PAGES_URL=$(gh api "repos/${{ github.repository }}/pages" --jq '.html_url' 2>/dev/null || echo "")
+          PAGES_URL="${PAGES_URL%/}"
+          if [[ -z "$PAGES_URL" ]]; then
+            echo "::warning::Could not fetch Pages URL; falling back to convention"
+            PAGES_URL="https://${{ github.repository_owner }}.github.io/$(echo '${{ github.repository }}' | cut -d/ -f2)"
+          fi
+          echo "url=$PAGES_URL" >> "$GITHUB_OUTPUT"
+          echo "Pages URL: $PAGES_URL"
+
       - name: Build docs
+        env:
+          DOCS_BASE_URL: "${{ steps.pages.outputs.url }}/${{ steps.version.outputs.ver }}/"
+          DOCS_VERSIONS_JSON: "${{ steps.pages.outputs.url }}/versions.json"
         run: python build_docs.py
 
-      - name: Deploy to gh-pages
+      - name: Deploy versioned docs to gh-pages
+        env:
+          VERSION: ${{ steps.version.outputs.ver }}
+          UPDATE_LATEST: ${{ steps.version.outputs.update_latest }}
+          PAGES_URL: ${{ steps.pages.outputs.url }}
         run: |
-          DOCS_DIR="nv_core/sr_specs/docs/_build/html"
+          DOCS_BUILD="nv_core/sr_specs/docs/_build/html"
+          DEPLOY_DIR=$(mktemp -d)
 
-          cd "$DOCS_DIR"
+          # Clone existing gh-pages content (or start fresh)
+          git clone --branch gh-pages --single-branch --depth 1 \
+            "https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git" \
+            "$DEPLOY_DIR" 2>/dev/null || {
+              mkdir -p "$DEPLOY_DIR"
+              cd "$DEPLOY_DIR"
+              git init -b gh-pages
+            }
+
+          cd "$DEPLOY_DIR"
+          git config user.name  "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
           touch .nojekyll
 
-          git init -b gh-pages
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
+          # Remove stale root-level Sphinx artifacts from pre-versioning deploys
+          rm -f *.html *.js *.inv .buildinfo
+          rm -rf _static _sources _images _downloads _sphinx_design_static \
+                 _doctrees capabilities features guides indexes profiles
+
+          # Place build into versioned subdirectory
+          rm -rf "$VERSION"
+          cp -r "$GITHUB_WORKSPACE/$DOCS_BUILD" "$VERSION"
+
+          # Update /latest/ on pushes to main
+          if [[ "$UPDATE_LATEST" == "true" ]]; then
+            rm -rf latest
+            cp -r "$VERSION" latest
+          fi
+
+          # Generate versions.json for the in-docs version switcher dropdown
+          LATEST_VER=$(ls -d */ 2>/dev/null | grep -v '^latest/$' | sort -rV | head -1 | tr -d '/')
+          echo '[' > versions.json
+          first=true
+          for d in $(ls -d */ 2>/dev/null | grep -v '^latest/$' | sort -rV); do
+            v="${d%/}"
+            if [[ "$first" == "true" ]]; then
+              label="$v (latest)"
+              first=false
+            else
+              label="$v"
+            fi
+            echo '  {"name": "'"$label"'", "version": "'"$v"'", "url": "'"$PAGES_URL"'/'"$v"'/"},' >> versions.json
+          done
+          # Remove trailing comma and close array
+          sed -i '$ s/,$//' versions.json
+          echo ']' >> versions.json
+
+          # Generate root index.html version picker
+          {
+            echo '<!DOCTYPE html>'
+            echo '<html lang="en"><head><meta charset="utf-8">'
+            echo '<title>SimReady Foundation Docs</title>'
+            echo '<style>'
+            echo '  body { font-family: system-ui, sans-serif; max-width: 600px;'
+            echo '         margin: 4rem auto; padding: 0 1rem; }'
+            echo '  h1 { font-size: 1.4rem; }'
+            echo '  ul { list-style: none; padding: 0; }'
+            echo '  li { margin: 0.5rem 0; }'
+            echo '  a  { color: #76b900; text-decoration: none; font-weight: 600; }'
+            echo '  a:hover { text-decoration: underline; }'
+            echo '</style></head><body>'
+            echo '<h1>SimReady Foundation Documentation</h1>'
+            echo '<ul>'
+            echo '  <li><a href="latest/">latest</a></li>'
+            for d in $(ls -d */ 2>/dev/null | grep -v '^latest/$' | sort -rV); do
+              v="${d%/}"
+              echo "  <li><a href=\"$v/\">$v</a></li>"
+            done
+            echo '</ul></body></html>'
+          } > index.html
+
           git add -A
-          git commit -m "Deploy docs from ${GITHUB_SHA::8}"
+          git diff --cached --quiet && echo "No changes to deploy" && exit 0
+          git commit -m "Deploy docs $VERSION from ${GITHUB_SHA::8}"
           git push --force "https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git" gh-pages

@@ -166,3 +166,49 @@ Once you have the environment set up, explore the guides in [`nv_core/sr_specs/d
 | [Features Expansion Workflow](nv_core/sr_specs/docs/guides/features_expansion_workflow.md) | Create technology-specific feature variants (e.g. neutral to PhysX) |
 | [Profiles Validation Workflow](nv_core/sr_specs/docs/guides/profiles_validation_workflow.md) | Create, version, and validate assets against profiles |
 | [Naming Conventions](nv_core/sr_specs/docs/guides/naming_conventions.md) | Asset and prim naming standards |
+
+### Agent skills
+
+Repo-local agent skills live under `skills/<skill-name>/SKILL.md` at the
+repository root. The `.agents/skills`, `.codex/skills`, and `.claude/skills`
+compatibility links point back to `../skills`, so update the `skills/` source of
+truth first.
+
+Use the skills as the first stop when an agent is asked to add, update,
+validate, package, or conform SimReady content. The guides in
+`nv_core/sr_specs/docs/guides/` remain the source of conceptual workflow detail;
+the skills turn that guidance into repeatable agent procedures.
+
+Skill categories:
+
+- `simready-foundation-add-*`: Add new Foundation surfaces such as capabilities, requirements, validators, features, profiles, feature adapters, and runtime tests.
+- `simready-foundation-update-*`: Update existing Foundation surfaces while preserving versioning, profile compatibility, and published behavior.
+- `simready-foundation-conform-fet-*`: Repair or assess USD assets for a specific feature gate, such as FET000 core, FET003 rigid-body physics, FET004 multibody physics, or FET006 materials.
+- `simready-foundation-create-package`: Create SimReady packages with the bundled package-sample workflow, including WRAPP setup, root USD inputs, validation phases, and no-WRAPP fallback modes.
+- `simready-foundation-validate-foundation-change`: Audit a Foundation change for consistency across requirement docs, validators, feature manifests, profile TOML, profile markdown, indexes, and related skills.
+
+How skills relate to the spec:
+
+- Capabilities and requirements live under `nv_core/sr_specs/docs/capabilities/`.
+- Features live under `nv_core/sr_specs/docs/features/` and bundle exact requirement IDs and dependencies.
+- Profiles live under `nv_core/sr_specs/docs/profiles/` and pin exact feature versions.
+- Add/update skills help maintain those spec files.
+- Conform skills help staged USD assets pass, skip, or block on feature-specific validation gates.
+
+When adding or changing a feature, also update the matching conform skill when
+the feature can produce asset-level validation failures. If a feature cannot be
+safely repaired by an agent, document that limitation in the feature workflow
+and validation summary.
+
+Bundled helper resources live under each skill's `assets/` directory. Current
+skills use `assets/openai.yaml` for optional UI metadata and `assets/scripts/`
+for deterministic helper scripts. The package workflow skill bundles
+`assets/scripts/create_simready_package.py`, `setup_venv.sh`, dependency
+requirements, and the `sr_pkg_sample/` helper package.
+
+Usage notes:
+
+- Read `AGENTS.md` and the relevant guide files before making SimReady spec changes.
+- Keep conform skills general. They should describe feature requirements and repair policy, not one-off behavior for a specific asset.
+- For optional or conditional profile features, conform skills should read the profile documentation before attempting repairs and should report `skipped/not applicable` when the profile allows it.
+- If full Omniverse/OAV validation is unavailable, run the narrower checks that are available and state the remaining validation gap.
